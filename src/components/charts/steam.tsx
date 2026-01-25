@@ -1,21 +1,21 @@
-import React from "react";
-import Chart, { Props } from "react-apexcharts";
+import React from 'react'
+import Chart, { Props } from 'react-apexcharts'
 
-const state: Props["series"] = [
+const state: Props['series'] = [
   {
-    name: "Series1",
+    name: 'Series1',
     data: [31, 40, 28, 51, 42, 109, 100],
   },
   {
-    name: "Series2",
+    name: 'Series2',
     data: [11, 32, 45, 32, 34, 52, 41],
   },
-];
+]
 
-const options: Props["options"] = {
+const options: Props['options'] = {
   chart: {
-    type: "area",
-    animations: { 
+    type: 'area',
+    animations: {
       speed: 300,
     },
     sparkline: {
@@ -24,8 +24,8 @@ const options: Props["options"] = {
     brush: {
       enabled: false,
     },
-    id: "basic-bar",
-    foreColor: "hsl(var(--heroui-default-800))",
+    id: 'basic-bar',
+    foreColor: 'hsl(var(--heroui-default-800))',
     stacked: true,
     toolbar: {
       show: false,
@@ -37,21 +37,21 @@ const options: Props["options"] = {
     labels: {
       // show: false,
       style: {
-        colors: "hsl(var(--heroui-default-800))",
+        colors: 'hsl(var(--heroui-default-800))',
       },
     },
     axisBorder: {
-      color: "hsl(var(--heroui-nextui-default-200))",
+      color: 'hsl(var(--heroui-nextui-default-200))',
     },
     axisTicks: {
-      color: "hsl(var(--heroui-nextui-default-200))",
+      color: 'hsl(var(--heroui-nextui-default-200))',
     },
   },
   yaxis: {
     labels: {
       style: {
         // hsl(var(--heroui-content1-foreground))
-        colors: "hsl(var(--heroui-default-800))",
+        colors: 'hsl(var(--heroui-default-800))',
       },
     },
   },
@@ -60,20 +60,19 @@ const options: Props["options"] = {
   },
   grid: {
     show: true,
-    borderColor: "hsl(var(--heroui-default-200))",
+    borderColor: 'hsl(var(--heroui-default-200))',
     strokeDashArray: 0,
-    position: "back",
+    position: 'back',
   },
   stroke: {
-    curve: "smooth",
+    curve: 'smooth',
     fill: {
-      colors: ["red"],
+      colors: ['red'],
     },
   },
   // @ts-ignore
   markers: false,
-};
-
+}
 export const Steam = () => {
   return (
     <>
@@ -83,5 +82,5 @@ export const Steam = () => {
         </div>
       </div>
     </>
-  );
-};
+  )
+}

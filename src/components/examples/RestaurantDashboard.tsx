@@ -50,6 +50,7 @@ export function RestaurantDashboard() {
         city: 'New York',
         phone: '555-0100',
         email: 'info@restaurant.com',
+        defaultCurrency: 'USD', // Add the currency ID here
       })
       setSelectedId(newRestaurant.id)
     } catch (error) {
@@ -61,6 +62,7 @@ export function RestaurantDashboard() {
     try {
       await updateRestaurant.mutateAsync({
         name: 'Updated Restaurant Name',
+        defaultCurrency: 'USD', // Add the currency ID here
       })
     } catch (error) {
       console.error('Update failed:', error)

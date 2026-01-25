@@ -1,9 +1,13 @@
 import type { CollectionConfig } from 'payload'
+import { isAuthenticated, isAdmin } from '@/access/helpers'
 
 export const Media: CollectionConfig = {
   slug: 'media',
   access: {
-    read: () => true,
+    read: () => true, // Public can view media
+    create: isAuthenticated, // Authenticated users can upload
+    update: isAuthenticated,
+    delete: isAdmin, // Only admins can delete media
   },
   fields: [
     {

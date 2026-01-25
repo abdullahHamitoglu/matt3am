@@ -1,28 +1,30 @@
-import fs from 'fs'
 import path from 'path'
-import { sqliteD1Adapter } from '@payloadcms/db-d1-sqlite'
+import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
-import { CloudflareContext, getCloudflareContext } from '@opennextjs/cloudflare'
-import { GetPlatformProxyOptions } from 'wrangler'
 import { r2Storage } from '@payloadcms/storage-r2'
 
+// Collections
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
-import migrations from './db/migrations'
+import { Permissions } from './collections/Permissions'
+import { Roles } from './collections/Roles'
+import { Restaurants } from './collections/Restaurants'
+import { Categories } from './collections/Categories'
+import { Currencies } from './collections/Currencies'
+import { InventoryItems } from './collections/InventoryItems'
+import { MenuItems } from './collections/MenuItems'
+import { ProductRecipes } from './collections/ProductRecipes'
+import { Tables } from './collections/Tables'
+import { Orders } from './collections/Orders'
+import { Cart } from './collections/Cart'
+import { Reservations } from './collections/Reservations'
+import { Reviews } from './collections/Reviews'
+import { LoyaltyProgram } from './collections/LoyaltyProgram'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
-const realpath = (value: string) => (fs.existsSync(value) ? fs.realpathSync(value) : undefined)
-
-const isCLI = process.argv.some((value) => realpath(value).endsWith(path.join('payload', 'bin.js')))
-const isProduction = process.env.NODE_ENV === 'production'
-
-const cloudflare =
-  isCLI || !isProduction
-    ? await getCloudflareContextFromWrangler()
-    : await getCloudflareContext({ async: true })
 
 export default buildConfig({
   admin: {
@@ -31,30 +33,62 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media],
+  localization: {
+    locales: [
+      {
+        label: 'العربية',
+        code: 'ar',
+      },
+      {
+        label: 'English',
+        code: 'en',
+      },
+      {
+        label: 'Türkçe',
+        code: 'tr',
+      },
+    ],
+    defaultLocale: 'ar',
+    fallback: true,
+  },
+  collections: [
+    // Core
+    Users,
+    Media,
+
+    // RBAC
+    Permissions,
+    Roles,
+
+    // Management
+    Restaurants,
+    Tables,
+    Reservations,
+    Reviews,
+    LoyaltyProgram,
+
+    // Menu & Inventory
+    Categories,
+    Currencies,
+    MenuItems,
+    InventoryItems,
+    ProductRecipes,
+
+    // Orders & Cart
+    Cart,
+    Orders,
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
-  db: sqliteD1Adapter({
-    binding: cloudflare.env.D1,
+  db: mongooseAdapter({
+    url: process.env.DATABASE_URL || '',
   }),
   plugins: [
-    r2Storage({
-      bucket: cloudflare.env.R2,
-      collections: { media: true },
-    }),
+    // Note: R2 storage requires Cloudflare context
+    // You may need to configure alternative storage for MongoDB deployment
+    // or keep R2 if deploying to Cloudflare with MongoDB
   ],
 })
-
-// Adapted from https://github.com/opennextjs/opennextjs-cloudflare/blob/d00b3a13e42e65aad76fba41774815726422cc39/packages/cloudflare/src/api/cloudflare-context.ts#L328C36-L328C46
-function getCloudflareContextFromWrangler(): Promise<CloudflareContext> {
-  return import(/* webpackIgnore: true */ `${'__wrangler'.replaceAll('_', '')}`).then(
-    ({ getPlatformProxy }) =>
-      getPlatformProxy({
-        environment: process.env.CLOUDFLARE_ENV,
-        remoteBindings: isProduction,
-      } satisfies GetPlatformProxyOptions),
-  )
-}

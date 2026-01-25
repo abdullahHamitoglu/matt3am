@@ -69,6 +69,20 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    permissions: Permission;
+    roles: Role;
+    restaurants: Restaurant;
+    tables: Table;
+    reservations: Reservation;
+    reviews: Review;
+    'loyalty-program': LoyaltyProgram;
+    categories: Category;
+    currencies: Currency;
+    'menu-items': MenuItem;
+    'inventory-items': InventoryItem;
+    'product-recipes': ProductRecipe;
+    cart: Cart;
+    orders: Order;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,18 +92,32 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    permissions: PermissionsSelect<false> | PermissionsSelect<true>;
+    roles: RolesSelect<false> | RolesSelect<true>;
+    restaurants: RestaurantsSelect<false> | RestaurantsSelect<true>;
+    tables: TablesSelect<false> | TablesSelect<true>;
+    reservations: ReservationsSelect<false> | ReservationsSelect<true>;
+    reviews: ReviewsSelect<false> | ReviewsSelect<true>;
+    'loyalty-program': LoyaltyProgramSelect<false> | LoyaltyProgramSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    currencies: CurrenciesSelect<false> | CurrenciesSelect<true>;
+    'menu-items': MenuItemsSelect<false> | MenuItemsSelect<true>;
+    'inventory-items': InventoryItemsSelect<false> | InventoryItemsSelect<true>;
+    'product-recipes': ProductRecipesSelect<false> | ProductRecipesSelect<true>;
+    cart: CartSelect<false> | CartSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: number;
+    defaultIDType: string;
   };
-  fallbackLocale: null;
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('ar' | 'en' | 'tr') | ('ar' | 'en' | 'tr')[];
   globals: {};
   globalsSelect: {};
-  locale: null;
+  locale: 'ar' | 'en' | 'tr';
   user: User & {
     collection: 'users';
   };
@@ -121,7 +149,31 @@ export interface UserAuthOperations {
  * via the `definition` "users".
  */
 export interface User {
-  id: number;
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone?: string | null;
+  /**
+   * Roles and permissions assigned to the user
+   */
+  roles?: (string | Role)[] | null;
+  /**
+   * Branches where the user can work
+   */
+  restaurant?: (string | Restaurant)[] | null;
+  employeeInfo?: {
+    employeeId?: string | null;
+    position?: ('manager' | 'waiter' | 'chef' | 'cashier' | 'delivery' | 'receptionist') | null;
+    hireDate?: string | null;
+    salary?: number | null;
+    emergencyContact?: {
+      name?: string | null;
+      phone?: string | null;
+      relationship?: string | null;
+    };
+  };
+  isActive?: boolean | null;
+  lastLogin?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -142,10 +194,160 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roles".
+ */
+export interface Role {
+  id: string;
+  /**
+   * Example: Morning Manager, Trainee Cashier, Kitchen Supervisor
+   */
+  name: string;
+  nameEn?: string | null;
+  /**
+   * Select the permissions available for this role
+   */
+  permissions: (string | Permission)[];
+  description?: string | null;
+  /**
+   * Disabling the role prevents assigning it to new employees
+   */
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "permissions".
+ */
+export interface Permission {
+  id: string;
+  /**
+   * Example: Create Order, View Reports, Delete Product
+   */
+  name: string;
+  action: 'create' | 'read' | 'update' | 'delete' | 'execute';
+  resource:
+    | 'orders'
+    | 'menu'
+    | 'inventory'
+    | 'reports'
+    | 'users'
+    | 'tables'
+    | 'reservations'
+    | 'payments'
+    | 'kitchen'
+    | 'settings';
+  /**
+   * Detailed description of what this permission allows
+   */
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "restaurants".
+ */
+export interface Restaurant {
+  id: string;
+  name: string;
+  city: string;
+  district?: string | null;
+  address: string;
+  /**
+   * For map display
+   */
+  latitude?: number | null;
+  /**
+   * For map display
+   */
+  longitude?: number | null;
+  phone: string;
+  email?: string | null;
+  workingHours?: {
+    openTime?: string | null;
+    closeTime?: string | null;
+    closedDays?: ('saturday' | 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday')[] | null;
+  };
+  features?: {
+    hasDineIn?: boolean | null;
+    hasTakeaway?: boolean | null;
+    hasDelivery?: boolean | null;
+    hasReservation?: boolean | null;
+    hasQROrdering?: boolean | null;
+  };
+  capacity?: {
+    totalTables?: number | null;
+    totalSeats?: number | null;
+    parkingSpaces?: number | null;
+  };
+  /**
+   * Default currency for this restaurant branch
+   */
+  defaultCurrency: string | Currency;
+  images?:
+    | {
+        image: string | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Disabling the branch hides it from the app
+   */
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Manage available currencies for your restaurants
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "currencies".
+ */
+export interface Currency {
+  id: string;
+  /**
+   * ISO 4217 code (e.g., USD, SAR, EUR)
+   */
+  code: string;
+  /**
+   * Currency symbol (e.g., $, ر.س, €)
+   */
+  symbol: string;
+  /**
+   * Only active currencies can be used
+   */
+  isActive?: boolean | null;
+  /**
+   * Full name of the currency (e.g., US Dollar, Saudi Riyal)
+   */
+  name: string;
+  /**
+   * Number of decimal places (usually 2)
+   */
+  decimalDigits?: number | null;
+  /**
+   * Where to place the symbol
+   */
+  symbolPosition?: ('before' | 'after') | null;
+  /**
+   * Exchange rate to base currency (optional)
+   */
+  exchangeRate?: number | null;
+  /**
+   * Last time exchange rate was updated
+   */
+  lastUpdated?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
-  id: number;
+  id: string;
   alt: string;
   updatedAt: string;
   createdAt: string;
@@ -159,10 +361,514 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tables".
+ */
+export interface Table {
+  id: string;
+  tableNumber: string;
+  restaurant: string | Restaurant;
+  zone: 'indoor' | 'outdoor' | 'vip' | 'family' | 'singles';
+  capacity: number;
+  minCapacity?: number | null;
+  status: 'available' | 'reserved' | 'occupied' | 'cleaning' | 'unavailable';
+  /**
+   * Generated automatically
+   */
+  qrCode?: string | null;
+  position?: {
+    x?: number | null;
+    y?: number | null;
+  };
+  features?: ('window' | 'private' | 'high-chair' | 'accessible')[] | null;
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reservations".
+ */
+export interface Reservation {
+  id: string;
+  restaurant: string | Restaurant;
+  customer: {
+    name: string;
+    phone: string;
+    email?: string | null;
+  };
+  reservationDate: string;
+  duration?: number | null;
+  guestCount: number;
+  childrenCount?: number | null;
+  /**
+   * Optional - A specific table can be assigned
+   */
+  preferredTable?: (string | null) | Table;
+  preferences?: {
+    seatingPreference?: ('indoor' | 'outdoor' | 'window' | 'vip' | 'family') | null;
+    occasion?: ('regular' | 'birthday' | 'anniversary' | 'business' | 'celebration') | null;
+    specialRequests?: string | null;
+  };
+  status: 'pending' | 'confirmed' | 'seated' | 'completed' | 'cancelled' | 'no-show';
+  /**
+   * Generated automatically
+   */
+  confirmationCode?: string | null;
+  reminderSent?: boolean | null;
+  /**
+   * Internal notes - Not visible to customers
+   */
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews".
+ */
+export interface Review {
+  id: string;
+  restaurant: string | Restaurant;
+  /**
+   * Order associated with the review (optional)
+   */
+  order?: (string | null) | Order;
+  customer: {
+    name: string;
+    phone?: string | null;
+    email?: string | null;
+  };
+  ratings: {
+    overall: number;
+    food?: number | null;
+    service?: number | null;
+    ambiance?: number | null;
+    cleanliness?: number | null;
+    valueForMoney?: number | null;
+  };
+  /**
+   * Customer's comment on the experience
+   */
+  comment?: string | null;
+  images?:
+    | {
+        image: string | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Verified that customer actually placed an order
+   */
+  verified?: boolean | null;
+  status: 'pending' | 'published' | 'hidden' | 'deleted';
+  response?: {
+    text?: string | null;
+    respondedBy?: (string | null) | User;
+    respondedAt?: string | null;
+  };
+  /**
+   * Number of people who found this review helpful
+   */
+  helpful?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: string;
+  /**
+   * Generated automatically
+   */
+  orderNumber?: string | null;
+  restaurant: string | Restaurant;
+  customer: {
+    name: string;
+    phone: string;
+    email?: string | null;
+  };
+  orderType: 'dine-in' | 'takeaway' | 'delivery';
+  /**
+   * For dine-in orders only
+   */
+  table?: (string | null) | Table;
+  deliveryAddress?: {
+    street?: string | null;
+    city?: string | null;
+    district?: string | null;
+    notes?: string | null;
+  };
+  items: {
+    menuItem: string | MenuItem;
+    quantity: number;
+    /**
+     * Price per unit
+     */
+    price: number;
+    subtotal?: number | null;
+    /**
+     * Example: No onions, Add cheese
+     */
+    customizations?: string | null;
+    specialInstructions?: string | null;
+    kitchenStatus?: ('pending' | 'preparing' | 'ready' | 'served') | null;
+    id?: string | null;
+  }[];
+  pricing?: {
+    subtotal?: number | null;
+    tax?: number | null;
+    discount?: number | null;
+    total?: number | null;
+  };
+  status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'served' | 'delivering' | 'completed' | 'cancelled';
+  paymentStatus: 'pending' | 'paid' | 'partially-paid' | 'refunded';
+  paymentMethod?: ('cash' | 'credit-card' | 'e-wallet' | 'bank-transfer') | null;
+  /**
+   * Waiter or delivery driver
+   */
+  assignedTo?: (string | null) | User;
+  notes?: string | null;
+  estimatedTime?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "menu-items".
+ */
+export interface MenuItem {
+  id: string;
+  name: string;
+  description?: string | null;
+  category: string | Category;
+  /**
+   * Select branches where this dish is available
+   */
+  restaurant: (string | Restaurant)[];
+  price: number;
+  /**
+   * Leave empty if no discount
+   */
+  discountPrice?: number | null;
+  /**
+   * Select currency for pricing
+   */
+  currency: string | Currency;
+  images?:
+    | {
+        image: string | Media;
+        id?: string | null;
+      }[]
+    | null;
+  dietary?: {
+    calories?: number | null;
+    tags?: ('vegetarian' | 'spicy' | 'gluten-free' | 'healthy' | 'best-seller' | 'new' | 'recommended')[] | null;
+    allergens?: ('peanuts' | 'dairy' | 'eggs' | 'seafood' | 'wheat')[] | null;
+  };
+  preparation?: {
+    prepTime?: number | null;
+    /**
+     * Example: 1 person, 2-3 people
+     */
+    servingSize?: string | null;
+  };
+  /**
+   * Add-ons or modifications that customer can choose
+   */
+  customizations?:
+    | {
+        name: string;
+        options?:
+          | {
+              optionName: string;
+              additionalPrice?: number | null;
+              id?: string | null;
+            }[]
+          | null;
+        isRequired?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Temporarily unavailable
+   */
+  isAvailable?: boolean | null;
+  /**
+   * Appears on home page
+   */
+  isFeatured?: boolean | null;
+  isActive?: boolean | null;
+  displayOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: string;
+  name: string;
+  /**
+   * Menu categories for dishes, Inventory categories for raw materials
+   */
+  type: 'menu' | 'inventory';
+  description?: string | null;
+  image?: (string | null) | Media;
+  /**
+   * Icon name from the icon library
+   */
+  icon?: string | null;
+  /**
+   * Category color code (#hex)
+   */
+  color?: string | null;
+  /**
+   * Order in the menu (lower appears first)
+   */
+  displayOrder?: number | null;
+  /**
+   * For creating subcategories
+   */
+  parentCategory?: (string | null) | Category;
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "loyalty-program".
+ */
+export interface LoyaltyProgram {
+  id: string;
+  customer: {
+    name: string;
+    phone: string;
+    email?: string | null;
+    dateOfBirth?: string | null;
+  };
+  /**
+   * Generated automatically
+   */
+  membershipId: string;
+  currentPoints?: number | null;
+  lifetimePoints?: number | null;
+  redeemedPoints?: number | null;
+  tier: 'bronze' | 'silver' | 'gold' | 'platinum' | 'vip';
+  totalOrders?: number | null;
+  totalSpent?: number | null;
+  pointsHistory?:
+    | {
+        type: 'earned' | 'redeemed' | 'expired' | 'adjusted';
+        points: number;
+        balance?: number | null;
+        date?: string | null;
+        description?: string | null;
+        relatedOrder?: (string | null) | Order;
+        id?: string | null;
+      }[]
+    | null;
+  rewards?:
+    | {
+        name: string;
+        pointsRequired: number;
+        /**
+         * In local currency or percentage
+         */
+        discount?: number | null;
+        isRedeemed?: boolean | null;
+        redeemedAt?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  preferences?: {
+    favoriteItems?: (string | MenuItem)[] | null;
+    dietaryRestrictions?:
+      | ('vegetarian' | 'vegan' | 'gluten-free' | 'halal' | 'nut-allergy' | 'lactose-intolerant')[]
+      | null;
+    receivePromotions?: boolean | null;
+  };
+  status: 'active' | 'suspended' | 'cancelled';
+  joinDate?: string | null;
+  lastActivity?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inventory-items".
+ */
+export interface InventoryItem {
+  id: string;
+  /**
+   * Example: Tomatoes, Meat, Olive Oil
+   */
+  name: string;
+  /**
+   * Unique code for inventory tracking
+   */
+  sku?: string | null;
+  category: string | Category;
+  /**
+   * Inventory is specific to each branch
+   */
+  restaurant: string | Restaurant;
+  currentStock: number;
+  /**
+   * Alert will be sent when reaching this threshold
+   */
+  lowStockThreshold: number;
+  unit: 'kg' | 'g' | 'l' | 'ml' | 'piece' | 'box' | 'bag';
+  pricing: {
+    /**
+     * Purchase price
+     */
+    costPerUnit?: number | null;
+    /**
+     * Select currency for pricing
+     */
+    currency: string | Currency;
+  };
+  supplier?: {
+    supplierName?: string | null;
+    supplierPhone?: string | null;
+    supplierEmail?: string | null;
+  };
+  storageInfo?: {
+    /**
+     * Example: Refrigerator, Dry Storage, Freezer
+     */
+    storageLocation?: string | null;
+    expiryDate?: string | null;
+    batchNumber?: string | null;
+  };
+  image?: (string | null) | Media;
+  notes?: string | null;
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Link dishes to raw materials - This table is responsible for automatic inventory deduction
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-recipes".
+ */
+export interface ProductRecipe {
+  id: string;
+  menuItem: string | MenuItem;
+  /**
+   * Recipe is specific to each branch (ingredients may vary)
+   */
+  restaurant: string | Restaurant;
+  /**
+   * Raw materials used in preparing the dish
+   */
+  ingredients: {
+    inventoryItem: string | InventoryItem;
+    /**
+     * Quantity required to prepare one serving
+     */
+    quantity: number;
+    unit: 'kg' | 'g' | 'l' | 'ml' | 'piece';
+    /**
+     * Example: Optional, can be replaced with...
+     */
+    notes?: string | null;
+    id?: string | null;
+  }[];
+  /**
+   * Automatically calculated from ingredient costs
+   */
+  totalCost?: number | null;
+  /**
+   * Automatically calculated: (Selling Price - Cost) / Selling Price × 100
+   */
+  profitMargin?: number | null;
+  /**
+   * Dish preparation steps for the kitchen
+   */
+  instructions?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cart".
+ */
+export interface Cart {
+  id: string;
+  /**
+   * Empty for guest users
+   */
+  user?: (string | null) | User;
+  /**
+   * For guest users - generated from browser
+   */
+  sessionId?: string | null;
+  /**
+   * All cart items must be from the same restaurant
+   */
+  restaurant: string | Restaurant;
+  items?:
+    | {
+        menuItem: string | MenuItem;
+        quantity: number;
+        /**
+         * Price per unit
+         */
+        price: number;
+        subtotal?: number | null;
+        /**
+         * Example: No onions, Add cheese
+         */
+        customizations?: string | null;
+        specialInstructions?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  pricing?: {
+    subtotal?: number | null;
+    tax?: number | null;
+    total?: number | null;
+  };
+  /**
+   * Total number of items in cart
+   */
+  itemCount?: number | null;
+  couponCode?: string | null;
+  discount?: number | null;
+  /**
+   * Cart will be automatically cleared after this date
+   */
+  expiresAt?: string | null;
+  status?: ('active' | 'abandoned' | 'converted' | 'expired') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: number;
+  id: string;
   key: string;
   data:
     | {
@@ -179,20 +885,76 @@ export interface PayloadKv {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: number;
+  id: string;
   document?:
     | ({
         relationTo: 'users';
-        value: number | User;
+        value: string | User;
       } | null)
     | ({
         relationTo: 'media';
-        value: number | Media;
+        value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'permissions';
+        value: string | Permission;
+      } | null)
+    | ({
+        relationTo: 'roles';
+        value: string | Role;
+      } | null)
+    | ({
+        relationTo: 'restaurants';
+        value: string | Restaurant;
+      } | null)
+    | ({
+        relationTo: 'tables';
+        value: string | Table;
+      } | null)
+    | ({
+        relationTo: 'reservations';
+        value: string | Reservation;
+      } | null)
+    | ({
+        relationTo: 'reviews';
+        value: string | Review;
+      } | null)
+    | ({
+        relationTo: 'loyalty-program';
+        value: string | LoyaltyProgram;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: string | Category;
+      } | null)
+    | ({
+        relationTo: 'currencies';
+        value: string | Currency;
+      } | null)
+    | ({
+        relationTo: 'menu-items';
+        value: string | MenuItem;
+      } | null)
+    | ({
+        relationTo: 'inventory-items';
+        value: string | InventoryItem;
+      } | null)
+    | ({
+        relationTo: 'product-recipes';
+        value: string | ProductRecipe;
+      } | null)
+    | ({
+        relationTo: 'cart';
+        value: string | Cart;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: string | Order;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: number | User;
+    value: string | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -202,10 +964,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: number;
+  id: string;
   user: {
     relationTo: 'users';
-    value: number | User;
+    value: string | User;
   };
   key?: string | null;
   value?:
@@ -225,7 +987,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: number;
+  id: string;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
@@ -236,6 +998,28 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  phone?: T;
+  roles?: T;
+  restaurant?: T;
+  employeeInfo?:
+    | T
+    | {
+        employeeId?: T;
+        position?: T;
+        hireDate?: T;
+        salary?: T;
+        emergencyContact?:
+          | T
+          | {
+              name?: T;
+              phone?: T;
+              relationship?: T;
+            };
+      };
+  isActive?: T;
+  lastLogin?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -268,6 +1052,465 @@ export interface MediaSelect<T extends boolean = true> {
   filesize?: T;
   width?: T;
   height?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "permissions_select".
+ */
+export interface PermissionsSelect<T extends boolean = true> {
+  name?: T;
+  action?: T;
+  resource?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roles_select".
+ */
+export interface RolesSelect<T extends boolean = true> {
+  name?: T;
+  nameEn?: T;
+  permissions?: T;
+  description?: T;
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "restaurants_select".
+ */
+export interface RestaurantsSelect<T extends boolean = true> {
+  name?: T;
+  city?: T;
+  district?: T;
+  address?: T;
+  latitude?: T;
+  longitude?: T;
+  phone?: T;
+  email?: T;
+  workingHours?:
+    | T
+    | {
+        openTime?: T;
+        closeTime?: T;
+        closedDays?: T;
+      };
+  features?:
+    | T
+    | {
+        hasDineIn?: T;
+        hasTakeaway?: T;
+        hasDelivery?: T;
+        hasReservation?: T;
+        hasQROrdering?: T;
+      };
+  capacity?:
+    | T
+    | {
+        totalTables?: T;
+        totalSeats?: T;
+        parkingSpaces?: T;
+      };
+  defaultCurrency?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tables_select".
+ */
+export interface TablesSelect<T extends boolean = true> {
+  tableNumber?: T;
+  restaurant?: T;
+  zone?: T;
+  capacity?: T;
+  minCapacity?: T;
+  status?: T;
+  qrCode?: T;
+  position?:
+    | T
+    | {
+        x?: T;
+        y?: T;
+      };
+  features?: T;
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reservations_select".
+ */
+export interface ReservationsSelect<T extends boolean = true> {
+  restaurant?: T;
+  customer?:
+    | T
+    | {
+        name?: T;
+        phone?: T;
+        email?: T;
+      };
+  reservationDate?: T;
+  duration?: T;
+  guestCount?: T;
+  childrenCount?: T;
+  preferredTable?: T;
+  preferences?:
+    | T
+    | {
+        seatingPreference?: T;
+        occasion?: T;
+        specialRequests?: T;
+      };
+  status?: T;
+  confirmationCode?: T;
+  reminderSent?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews_select".
+ */
+export interface ReviewsSelect<T extends boolean = true> {
+  restaurant?: T;
+  order?: T;
+  customer?:
+    | T
+    | {
+        name?: T;
+        phone?: T;
+        email?: T;
+      };
+  ratings?:
+    | T
+    | {
+        overall?: T;
+        food?: T;
+        service?: T;
+        ambiance?: T;
+        cleanliness?: T;
+        valueForMoney?: T;
+      };
+  comment?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  verified?: T;
+  status?: T;
+  response?:
+    | T
+    | {
+        text?: T;
+        respondedBy?: T;
+        respondedAt?: T;
+      };
+  helpful?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "loyalty-program_select".
+ */
+export interface LoyaltyProgramSelect<T extends boolean = true> {
+  customer?:
+    | T
+    | {
+        name?: T;
+        phone?: T;
+        email?: T;
+        dateOfBirth?: T;
+      };
+  membershipId?: T;
+  currentPoints?: T;
+  lifetimePoints?: T;
+  redeemedPoints?: T;
+  tier?: T;
+  totalOrders?: T;
+  totalSpent?: T;
+  pointsHistory?:
+    | T
+    | {
+        type?: T;
+        points?: T;
+        balance?: T;
+        date?: T;
+        description?: T;
+        relatedOrder?: T;
+        id?: T;
+      };
+  rewards?:
+    | T
+    | {
+        name?: T;
+        pointsRequired?: T;
+        discount?: T;
+        isRedeemed?: T;
+        redeemedAt?: T;
+        id?: T;
+      };
+  preferences?:
+    | T
+    | {
+        favoriteItems?: T;
+        dietaryRestrictions?: T;
+        receivePromotions?: T;
+      };
+  status?: T;
+  joinDate?: T;
+  lastActivity?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  name?: T;
+  type?: T;
+  description?: T;
+  image?: T;
+  icon?: T;
+  color?: T;
+  displayOrder?: T;
+  parentCategory?: T;
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "currencies_select".
+ */
+export interface CurrenciesSelect<T extends boolean = true> {
+  code?: T;
+  symbol?: T;
+  isActive?: T;
+  name?: T;
+  decimalDigits?: T;
+  symbolPosition?: T;
+  exchangeRate?: T;
+  lastUpdated?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "menu-items_select".
+ */
+export interface MenuItemsSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  category?: T;
+  restaurant?: T;
+  price?: T;
+  discountPrice?: T;
+  currency?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  dietary?:
+    | T
+    | {
+        calories?: T;
+        tags?: T;
+        allergens?: T;
+      };
+  preparation?:
+    | T
+    | {
+        prepTime?: T;
+        servingSize?: T;
+      };
+  customizations?:
+    | T
+    | {
+        name?: T;
+        options?:
+          | T
+          | {
+              optionName?: T;
+              additionalPrice?: T;
+              id?: T;
+            };
+        isRequired?: T;
+        id?: T;
+      };
+  isAvailable?: T;
+  isFeatured?: T;
+  isActive?: T;
+  displayOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inventory-items_select".
+ */
+export interface InventoryItemsSelect<T extends boolean = true> {
+  name?: T;
+  sku?: T;
+  category?: T;
+  restaurant?: T;
+  currentStock?: T;
+  lowStockThreshold?: T;
+  unit?: T;
+  pricing?:
+    | T
+    | {
+        costPerUnit?: T;
+        currency?: T;
+      };
+  supplier?:
+    | T
+    | {
+        supplierName?: T;
+        supplierPhone?: T;
+        supplierEmail?: T;
+      };
+  storageInfo?:
+    | T
+    | {
+        storageLocation?: T;
+        expiryDate?: T;
+        batchNumber?: T;
+      };
+  image?: T;
+  notes?: T;
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-recipes_select".
+ */
+export interface ProductRecipesSelect<T extends boolean = true> {
+  menuItem?: T;
+  restaurant?: T;
+  ingredients?:
+    | T
+    | {
+        inventoryItem?: T;
+        quantity?: T;
+        unit?: T;
+        notes?: T;
+        id?: T;
+      };
+  totalCost?: T;
+  profitMargin?: T;
+  instructions?: T;
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cart_select".
+ */
+export interface CartSelect<T extends boolean = true> {
+  user?: T;
+  sessionId?: T;
+  restaurant?: T;
+  items?:
+    | T
+    | {
+        menuItem?: T;
+        quantity?: T;
+        price?: T;
+        subtotal?: T;
+        customizations?: T;
+        specialInstructions?: T;
+        id?: T;
+      };
+  pricing?:
+    | T
+    | {
+        subtotal?: T;
+        tax?: T;
+        total?: T;
+      };
+  itemCount?: T;
+  couponCode?: T;
+  discount?: T;
+  expiresAt?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  orderNumber?: T;
+  restaurant?: T;
+  customer?:
+    | T
+    | {
+        name?: T;
+        phone?: T;
+        email?: T;
+      };
+  orderType?: T;
+  table?: T;
+  deliveryAddress?:
+    | T
+    | {
+        street?: T;
+        city?: T;
+        district?: T;
+        notes?: T;
+      };
+  items?:
+    | T
+    | {
+        menuItem?: T;
+        quantity?: T;
+        price?: T;
+        subtotal?: T;
+        customizations?: T;
+        specialInstructions?: T;
+        kitchenStatus?: T;
+        id?: T;
+      };
+  pricing?:
+    | T
+    | {
+        subtotal?: T;
+        tax?: T;
+        discount?: T;
+        total?: T;
+      };
+  status?: T;
+  paymentStatus?: T;
+  paymentMethod?: T;
+  assignedTo?: T;
+  notes?: T;
+  estimatedTime?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

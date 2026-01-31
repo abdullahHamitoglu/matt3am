@@ -2,6 +2,8 @@
  * API Request and Response Types
  */
 
+import { User } from '@/payload-types'
+
 export interface PaginatedResponse<T> {
   docs: T[]
   totalDocs: number
@@ -75,12 +77,5 @@ export interface AuthResponse {
 }
 
 export interface CurrentUserResponse {
-  user: {
-    id: string
-    email: string
-    name?: string
-    roles?: string[]
-    createdAt: string
-    updatedAt: string
-  }
+  user: User
 }

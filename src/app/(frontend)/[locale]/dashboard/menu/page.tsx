@@ -1,0 +1,8 @@
+'use client'
+
+import React from 'react'
+import { MenuContent } from '@/components/menu/MenuContent'
+
+export default function MenuPage() {
+  return <MenuContent />
+}

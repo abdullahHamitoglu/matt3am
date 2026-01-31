@@ -11,3 +11,6 @@ export const {
   useDelete: useDeleteRestaurant,
   queryKeys: restaurantQueryKeys,
 } = createCollectionHooks(restaurantsService, { collectionKey: 'restaurants' })
+
+// Export the restaurant selection hook
+export { useRestaurantSelection } from './useRestaurantSelection'

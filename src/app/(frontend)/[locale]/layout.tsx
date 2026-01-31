@@ -15,7 +15,7 @@ export default async function Layout({
   const messages = await getMessages()
 
   return (
-    <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+    <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'} className={`${locale} `}>
       <body>
         <Providers locale={locale} messages={messages}>
           <main>{children}</main>

@@ -8,19 +8,25 @@ export const POST = async (request: NextRequest) => {
       config: configPromise,
     })
 
-    // Get token from Authorization header
-    const authHeader = request.headers.get('authorization')
-    const token = authHeader?.replace('Bearer ', '')
+    // Get token from cookie
+    const token = request.cookies.get('auth_token')?.value
 
     if (!token) {
-      return NextResponse.json({ message: 'No token provided' }, { status: 401 })
+      // Even if no token, still return success (already logged out)
+      const response = NextResponse.json({
+        message: 'Logout successful',
+      })
+      response.cookies.delete('auth_token')
+      return response
     }
 
     // Logout is handled by clearing the cookie
-    // Here we just verify the token is valid
+    // Optionally verify the token is valid
     try {
+      const headers = new Headers(request.headers)
+      headers.set('authorization', `Bearer ${token}`)
       await payload.auth({
-        headers: request.headers,
+        headers,
       })
     } catch (e) {
       // Token invalid or expired, that's fine for logout

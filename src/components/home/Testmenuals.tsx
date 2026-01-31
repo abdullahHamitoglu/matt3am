@@ -1,34 +1,36 @@
 'use client'
 import { Avatar } from '@heroui/react'
+import { useTranslations } from 'next-intl'
 import React from 'react'
 
 type Props = {}
 
 const Testimonials = (props: Props) => {
+  const t = useTranslations()
+
   const testimonials = [
     {
-      name: 'عبدالله العمري',
-      section: 'مدير مطعم',
-      description: 'تطبيق رائع وسهل الاستخدام، أنصح به بشدة.',
+      name: t('testimonial1Name'),
+      section: t('restaurantManager'),
+      description: t('testimonial1Text'),
       image: '/assets/testimonials/1.jpg',
     },
     {
-      name: 'محمد العتيبي',
-      section: 'مدير مطعم',
-
-      description: 'تطبيق ممتاز ويحتوي على كل الأدوات التي تحتاجها لإدارة مطعمك.',
+      name: t('testimonial2Name'),
+      section: t('restaurantManager'),
+      description: t('testimonial2Text'),
       image: '/assets/testimonials/2.jpg',
     },
     {
-      name: 'عبدالرحمن العنزي',
-      section: 'مدير مطعم',
-      description: 'تطبيق رائع وسهل الاستخدام، أنصح به بشدة.',
+      name: t('testimonial3Name'),
+      section: t('restaurantManager'),
+      description: t('testimonial3Text'),
       image: '/assets/testimonials/3.jpg',
     },
     {
-      name: 'عبدالله العمري',
-      section: 'مدير مطعم',
-      description: 'تطبيق رائع وسهل الاستخدام، أنصح به بشدة.',
+      name: t('testimonial1Name'),
+      section: t('restaurantManager'),
+      description: t('testimonial1Text'),
       image: '/assets/testimonials/1.jpg',
     },
   ]
@@ -36,7 +38,7 @@ const Testimonials = (props: Props) => {
   return (
     <div className="flex flex-col gap-3">
       <h4 className="font-bold text-secondary-500 dark:text-secondary-400 text-lg text-center">
-        ما يقوله عملاؤنا ؟
+        {t('whatOurClientsSay')}
       </h4>
       <div className="justify-center items-center gap-4 grid grid-cols-1 md:grid-cols-4 m-auto w-fit max-w-[80%]">
         {testimonials.map((testimonial, index) => (

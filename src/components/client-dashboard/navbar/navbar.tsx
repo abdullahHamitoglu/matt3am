@@ -1,69 +1,51 @@
-import { Input, Link, Navbar, NavbarContent } from "@heroui/react";
-import React from "react";
-import { FeedbackIcon } from "../icons/navbar/feedback-icon";
-import { GithubIcon } from "../icons/navbar/github-icon";
-import { SupportIcon } from "../icons/navbar/support-icon";
-import { SearchIcon } from "../icons/searchicon";
-import { BurguerButton } from "./burguer-button";
-import { NotificationsDropdown } from "./notifications-dropdown";
-import { UserDropdown } from "./user-dropdown";
+import { Input, Link, Navbar, NavbarContent } from '@heroui/react'
+import React from 'react'
+import { FeedbackIcon } from '../icons/navbar/feedback-icon'
+import { GithubIcon } from '../icons/navbar/github-icon'
+import { SupportIcon } from '../icons/navbar/support-icon'
+import { SearchIcon } from '../icons/searchicon'
+import { BurguerButton } from './burguer-button'
+import { NotificationsDropdown } from './notifications-dropdown'
+import { UserDropdown } from './user-dropdown'
+import { RestaurantSelector } from '../header/RestaurantSelector'
+import { QuickAccess } from '../../common/QuickAccess'
+import { LanguageSwitcher } from '../../common/LanguageSwitcher'
+import { ThemeSwitcher } from '../../common/ThemeSwitcher'
+import { CurrencySwitcher } from '../../common/CurrencySwitcher'
 
 interface Props {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
 export const NavbarWrapper = ({ children }: Props) => {
   return (
-    <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+    <div className="relative flex flex-col flex-1 overflow-x-hidden overflow-y-auto">
       <Navbar
         isBordered
         className="w-full"
         classNames={{
-          wrapper: "w-full max-w-full",
+          wrapper: 'w-full max-w-full',
         }}
       >
         <NavbarContent className="md:hidden">
           <BurguerButton />
         </NavbarContent>
-        <NavbarContent className="w-full max-md:hidden">
-          <Input
-            startContent={<SearchIcon />}
-            isClearable
-            className="w-full"
-            classNames={{
-              input: "w-full",
-              mainWrapper: "w-full",
-            }}
-            placeholder="Search..."
-          />
-        </NavbarContent>
-        <NavbarContent
-          justify="end"
-          className="w-fit data-[justify=end]:flex-grow-0"
-        >
-          <div className="flex items-center gap-2 max-md:hidden">
-            <FeedbackIcon />
-            <span>Feedback?</span>
+        <NavbarContent justify="end" className="data-[justify=end]:flex-grow-0 ms-auto w-fit">
+          <QuickAccess />
+          <div className="hidden md:flex items-center gap-2">
+            <CurrencySwitcher />
+            <LanguageSwitcher />
+            <ThemeSwitcher />
           </div>
 
           <NotificationsDropdown />
 
-          <div className="max-md:hidden">
-            <SupportIcon />
-          </div>
-
-          <Link
-            href="https://github.com/Siumauricio/nextui-dashboard-template"
-            target={"_blank"}
-          >
-            <GithubIcon />
-          </Link>
           <NavbarContent>
             <UserDropdown />
           </NavbarContent>
         </NavbarContent>
       </Navbar>
-      {children}
+      <div className="p-6">{children}</div>
     </div>
-  );
-};
+  )
+}

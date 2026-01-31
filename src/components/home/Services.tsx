@@ -1,105 +1,107 @@
+'use client'
 import { Icon } from '@iconify/react'
-import { useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl'
 import React from 'react'
 
 type Props = {}
 
 const Services = (props: Props) => {
-  const t = useTranslations();
+  const t = useTranslations()
 
   const services = () => {
-    const liClassNames = 'font-normal text- text-colors-common-white text-xs';
-    const ulClassNames = 'opacity-80 ps-5 list-disc';
+    const liClassNames = 'font-normal text- text-colors-common-white text-xs'
+    const ulClassNames = 'opacity-80 ps-5 list-disc'
     return [
       {
-        name: "تقارير أداء وتحليلات",
-        icon: "solar:chef-hat-minimalistic-bold-duotone",
+        name: t('performanceReportsService'),
+        icon: 'solar:chef-hat-minimalistic-bold-duotone',
         description: `
         <ul class="${ulClassNames}">
-          <li class="${liClassNames}">احصل على تقارير دورية حول الطلبات الأكثر شيوعا وأوقات الذروة.</li>
-          <li class="${liClassNames}">قم بتحسين أداء مطعمك بناءً على بيانات دقيقة.</li>
+          <li class="${liClassNames}">${t('performanceReportsService1')}</li>
+          <li class="${liClassNames}">${t('performanceReportsService2')}</li>
         </ul>
-      `
+      `,
       },
       {
-        name: "إدارة الحجوزات والطاولات",
-        icon: "solar:document-add-bold-duotone",
+        name: t('reservationManagementService'),
+        icon: 'solar:document-add-bold-duotone',
         description: `
         <ul class="${ulClassNames}">
-          <li class="${liClassNames}">تمكين العملاء من حجز الطاولات.</li>
-          <li class="${liClassNames}">ربط الطاولات برموز QR لتسهيل الطلب المباشر.</li>
+          <li class="${liClassNames}">${t('reservationManagementService1')}</li>
+          <li class="${liClassNames}">${t('reservationManagementService2')}</li>
         </ul>
-      `
+      `,
       },
       {
-        name: "نظام دفع إلكتروني متكامل",
-        icon: "solar:wallet-money-bold-duotone",
+        name: t('integratedPaymentSystemService'),
+        icon: 'solar:wallet-money-bold-duotone',
         description: `
         <ul class="${ulClassNames}">
-          <li class="${liClassNames}">دعم لبطاقات الائتمان، الحافظ الإلكترونية، والدفع عند الاستلام.</li>
-          <li class="${liClassNames}">وفر تجربة دفع سريعة وآمنة للعملاء.</li>
+          <li class="${liClassNames}">${t('integratedPaymentSystemService1')}</li>
+          <li class="${liClassNames}">${t('integratedPaymentSystemService2')}</li>
         </ul>
-      `
+      `,
       },
       {
-        name: "إدارة الطلبات بسلاسة",
+        name: t('orderManagementService'),
         icon: 'solar:bar-chair-bold-duotone',
         description: `
         <ul class="${ulClassNames}">
-          <li class="${liClassNames}">تتبع الطلبات من الطاولات أو الطلبات الخارجية في الوقت الفعلي.</li>
-          <li class="${liClassNames}">عرض حالة الطلب (قيد التحضير، جاهز، تم التوصيل).</li>
+          <li class="${liClassNames}">${t('orderManagementService1')}</li>
+          <li class="${liClassNames}">${t('orderManagementService2')}</li>
         </ul>
-      `
+      `,
       },
       {
-        name: "إدارة القوائم الإلكترونية",
-        icon: "solar:document-add-bold-duotone",
+        name: t('menuManagementService'),
+        icon: 'solar:document-add-bold-duotone',
         description: `
         <ul class="${ulClassNames}">
-          <li class="${liClassNames}">أنشئ وقم بتحديث قوائم الطعام بسهولة.</li>
-          <li class="${liClassNames}">أضف صوراً للأطباق وأسعارها لجذب العملاء.</li>
+          <li class="${liClassNames}">${t('menuManagementService1')}</li>
+          <li class="${liClassNames}">${t('menuManagementService2')}</li>
         </ul>
-      `
-      }
+      `,
+      },
     ]
   }
 
   const features = [
     {
-      name: "متعدد اللغات",
+      name: t('multiLanguageSupport'),
       icon: 'solar:global-bold-duotone',
-      description: "يدعم النطاقات متعددة لتلبية احتياجات العملاء للتنوع."
+      description: t('multiLanguageSupportFeatureDescription'),
     },
     {
-      name: "سهولة الاستخدام",
+      name: t('easeOfUse'),
       icon: 'solar:star-bold-duotone',
-      description: "واجهة بسيطة وبديهية لأصحاب المطعم والعملاء."
+      description: t('easeOfUseFeatureDescription'),
     },
     {
-      name: "تكامل مع الخرائط",
+      name: t('mapIntegration'),
       icon: 'solar:point-on-map-bold-duotone',
-      description: "عرض مواقع الفروع وتوجيه العملاء إلى الطاولات بسهولة."
+      description: t('mapIntegrationFeatureDescription'),
     },
     {
-      name: "اشعارات فورية",
+      name: t('instantNotifications'),
       icon: 'solar:bell-bold-duotone',
-      description: "إشعارات فورية للمالك بالطلبات والتحديثات في الوقت المناسب."
-    }
-  ];
-
+      description: t('instantNotificationsFeatureDescription'),
+    },
+  ]
 
   return (
-    <div className='gap-4 grid grid-cols-2 md:grid-cols-5'>
+    <div className="gap-4 grid grid-cols-2 md:grid-cols-5">
       {services().map((item, index) => (
-        <div className={`flex flex-col items-start md:p-4 p-3 rounded-2xl text-white ${index % 2 ? 'bg-secondary-500' : 'bg-primary-400'} ${index === 4 ? 'md:col-span-1 col-span-2' : ''}`} key={index}>
-          <Icon icon={item.icon as string} className='mb-3 text-2xl md:text-4xl' />
+        <div
+          className={`flex flex-col items-start md:p-4 p-3 rounded-2xl text-white ${index % 2 ? 'bg-secondary-500' : 'bg-primary-400'} ${index === 4 ? 'md:col-span-1 col-span-2' : ''}`}
+          key={index}
+        >
+          <Icon icon={item.icon as string} className="mb-3 text-2xl md:text-4xl" />
           <div className="[&>ul]:opacity-80 [&>ul]:md:ps-5 [&>ul]:ps-2 w-full [&>ul]:list-disc">
-            <p className='mb-2 font-bold md:text-medium text-sm'>{item.name}</p>
+            <p className="mb-2 font-bold md:text-medium text-sm">{item.name}</p>
             <div dangerouslySetInnerHTML={{ __html: item.description }} />
           </div>
         </div>
       ))}
-
     </div>
   )
 }

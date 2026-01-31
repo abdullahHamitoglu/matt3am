@@ -8,17 +8,21 @@ export const GET = async (request: NextRequest) => {
       config: configPromise,
     })
 
-    // Get token from Authorization header
-    const authHeader = request.headers.get('authorization')
-    const token = authHeader?.replace('Bearer ', '')
+    // Get token from cookie (HTTP-only)
+    const token = request.cookies.get('auth_token')?.value
 
     if (!token) {
       return NextResponse.json({ message: 'No token provided' }, { status: 401 })
     }
 
+    // Create a new Headers object with the token in Authorization header
+    // Payload's auth method expects token in Authorization header
+    const headers = new Headers(request.headers)
+    headers.set('authorization', `Bearer ${token}`)
+
     // Verify token and get user
     const { user } = await payload.auth({
-      headers: request.headers,
+      headers,
     })
 
     if (!user) {

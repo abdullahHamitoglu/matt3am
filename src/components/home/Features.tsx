@@ -1,30 +1,34 @@
+'use client'
 import { Icon } from '@iconify/react'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import React from 'react'
 
 type Props = {}
 
 const Features = (props: Props) => {
+  const t = useTranslations()
+
   const features = [
     {
-      name: 'متعدد اللغات',
+      name: t('multiLanguageSupport'),
       icon: 'solar:global-bold-duotone',
-      description: 'يدعم النطاقات متعددة لتلبية احتياجات العملاء للتنوع.',
+      description: t('multiLanguageSupportFeatureDescription'),
     },
     {
-      name: 'سهولة الاستخدام',
+      name: t('easeOfUse'),
       icon: 'solar:star-bold-duotone',
-      description: 'واجهة بسيطة وبديهية لأصحاب المطعم والعملاء.',
+      description: t('easeOfUseFeatureDescription'),
     },
     {
-      name: 'تكامل مع الخرائط',
+      name: t('mapIntegration'),
       icon: 'solar:point-on-map-bold-duotone',
-      description: 'عرض مواقع الفروع وتوجيه العملاء إلى الطاولات بسهولة.',
+      description: t('mapIntegrationFeatureDescription'),
     },
     {
-      name: 'اشعارات فورية',
+      name: t('instantNotifications'),
       icon: 'solar:bell-bold-duotone',
-      description: 'إشعارات فورية للمالك بالطلبات والتحديثات في الوقت المناسب.',
+      description: t('instantNotificationsFeatureDescription'),
     },
   ]
   return (
@@ -40,7 +44,7 @@ const Features = (props: Props) => {
       </div>
       <div className="col-span-5 md:col-span-2 mt-4">
         <h4 className="mb-[10px] font-bold text-secondary-500 dark:text-secondary-400 text-lg">
-          لماذا تختار تطبيقنا؟
+          {t('whyChooseOurApp')}
         </h4>
         <ul className="gap-[10px] grid grid-cols-2 mt-4">
           {features.map((feature, index) => (

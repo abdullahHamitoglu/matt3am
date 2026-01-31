@@ -12,6 +12,7 @@ import { queryClient } from '@/lib/query/client'
 import { HeroUIProvider } from '@heroui/react'
 import { NextIntlClientProvider } from 'next-intl'
 import { ThemeProvider } from 'next-themes'
+import { AppProgressBar as ProgressBar } from 'next-nprogress-bar'
 
 interface ProvidersProps {
   children: React.ReactNode
@@ -24,7 +25,15 @@ export function Providers({ children, locale, messages }: ProvidersProps) {
     <NextIntlClientProvider locale={locale} messages={messages}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          <HeroUIProvider>{children}</HeroUIProvider>
+          <HeroUIProvider>
+            {children}
+            <ProgressBar
+              height="3px"
+              color="#F59E0B"
+              options={{ showSpinner: false }}
+              shallowRouting
+            />
+          </HeroUIProvider>
           {/* React Query DevTools for development */}
           <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />
         </ThemeProvider>

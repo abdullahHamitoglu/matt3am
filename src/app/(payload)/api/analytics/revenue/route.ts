@@ -1,14 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import type { User } from '@/payload-types'
+
+/**
+ * Helper to check if user has Administrator role
+ */
+function isAdminUser(user: User): boolean {
+  const userRoles = user.roles
+  if (!userRoles) return false
+
+  const rolesArray = Array.isArray(userRoles) ? userRoles : [userRoles]
+  return rolesArray.some((role) => {
+    if (typeof role === 'object' && role !== null && 'name' in role) {
+      return role.name === 'Administrator'
+    }
+    return false
+  })
+}
 
 export async function GET(request: NextRequest) {
   try {
+    const payload = await getPayload({ config })
+
+    // Authenticate user
+    const { user } = await payload.auth({
+      headers: request.headers,
+    })
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check if user is active
+    if ('isActive' in user && user.isActive === false) {
+      return NextResponse.json({ error: 'Account is inactive' }, { status: 403 })
+    }
+
     const searchParams = request.nextUrl.searchParams
-    const restaurantId = searchParams.get('restaurantId')
+    let restaurantId = searchParams.get('restaurantId')
     const days = parseInt(searchParams.get('days') || '30', 10)
 
-    const payload = await getPayload({ config })
+    // Enforce restaurant scoping for non-admins
+    if (!isAdminUser(user)) {
+      const userRestaurants = Array.isArray(user.restaurant)
+        ? user.restaurant.map((r) => (typeof r === 'string' ? r : r.id))
+        : []
+
+      if (userRestaurants.length === 0) {
+        return NextResponse.json({ error: 'No restaurants assigned' }, { status: 403 })
+      }
+
+      // If no restaurantId provided, default to first restaurant
+      if (!restaurantId) {
+        restaurantId = userRestaurants[0]
+      } else if (!userRestaurants.includes(restaurantId)) {
+        // User trying to access restaurant they're not assigned to
+        return NextResponse.json(
+          { error: 'Forbidden - You do not have access to this restaurant' },
+          { status: 403 },
+        )
+      }
+    }
 
     // Build query with restaurant filter if provided
     const whereQuery: any = {}

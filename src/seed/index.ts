@@ -249,7 +249,7 @@ async function seed() {
         symbol: 'ر.س',
         name: 'Saudi Riyal',
         decimalDigits: 2,
-        symbolPosition: 'after',
+        symbolPosition: 'after' as const,
         isActive: true,
       },
       {
@@ -257,7 +257,7 @@ async function seed() {
         symbol: '$',
         name: 'US Dollar',
         decimalDigits: 2,
-        symbolPosition: 'before',
+        symbolPosition: 'before' as const,
         isActive: true,
       },
       {
@@ -265,7 +265,7 @@ async function seed() {
         symbol: '€',
         name: 'Euro',
         decimalDigits: 2,
-        symbolPosition: 'before',
+        symbolPosition: 'before' as const,
         isActive: true,
       },
       {
@@ -273,7 +273,7 @@ async function seed() {
         symbol: 'د.إ',
         name: 'UAE Dirham',
         decimalDigits: 2,
-        symbolPosition: 'after',
+        symbolPosition: 'after' as const,
         isActive: true,
       },
       {
@@ -281,7 +281,7 @@ async function seed() {
         symbol: 'د.ك',
         name: 'Kuwaiti Dinar',
         decimalDigits: 3,
-        symbolPosition: 'after',
+        symbolPosition: 'after' as const,
         isActive: true,
       },
       {
@@ -289,7 +289,7 @@ async function seed() {
         symbol: 'د.ب',
         name: 'Bahraini Dinar',
         decimalDigits: 3,
-        symbolPosition: 'after',
+        symbolPosition: 'after' as const,
         isActive: true,
       },
       {
@@ -297,7 +297,7 @@ async function seed() {
         symbol: 'ر.ع',
         name: 'Omani Rial',
         decimalDigits: 3,
-        symbolPosition: 'after',
+        symbolPosition: 'after' as const,
         isActive: true,
       },
       {
@@ -305,7 +305,7 @@ async function seed() {
         symbol: 'ر.ق',
         name: 'Qatari Riyal',
         decimalDigits: 2,
-        symbolPosition: 'after',
+        symbolPosition: 'after' as const,
         isActive: true,
       },
       {
@@ -313,7 +313,7 @@ async function seed() {
         symbol: 'ج.م',
         name: 'Egyptian Pound',
         decimalDigits: 2,
-        symbolPosition: 'after',
+        symbolPosition: 'after' as const,
         isActive: true,
       },
       {
@@ -321,7 +321,7 @@ async function seed() {
         symbol: '₺',
         name: 'Turkish Lira',
         decimalDigits: 2,
-        symbolPosition: 'after',
+        symbolPosition: 'after' as const,
         isActive: true,
       },
     ]

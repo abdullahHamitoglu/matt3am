@@ -11,14 +11,17 @@ export function proxy(request: NextRequest) {
   const localeCookie = request.cookies?.get('NEXT_LOCALE')
   const Locale = localeCookie?.value || 'en'
 
-  console.log('proxy is working')
-
   // Ignore static files and images
   if (
     pathname.startsWith('/_next/static/') ||
     pathname.startsWith('/assets/') ||
     pathname.match(/\.(png|jpg|jpeg|gif|webp|svg|ico)$/i)
   ) {
+    return NextResponse.next()
+  }
+
+  // Ignore API routes - handled separately
+  if (pathname.startsWith('/api/')) {
     return NextResponse.next()
   }
 
@@ -32,14 +35,14 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(`/${Locale}`, request.nextUrl))
   }
 
-  // Proxy login to dashboard if authenticated
+  // Redirect login to dashboard if authenticated
   if (pathname.includes('/login') && userAuth) {
-    return NextResponse.rewrite(new URL(`/${Locale}/dashboard`, request.nextUrl))
+    return NextResponse.redirect(new URL(`/${Locale}/dashboard`, request.nextUrl))
   }
 
-  // Proxy dashboard to login if not authenticated
-  if (!userAuth && pathname.startsWith(`/${Locale}/dashboard`)) {
-    return NextResponse.rewrite(new URL(`/${Locale}/login`, request.nextUrl))
+  // Redirect dashboard to login if not authenticated
+  if (!userAuth && pathname.includes('/dashboard')) {
+    return NextResponse.redirect(new URL(`/${Locale}/login`, request.nextUrl))
   }
 
   // Apply i18n middleware to frontend routes only

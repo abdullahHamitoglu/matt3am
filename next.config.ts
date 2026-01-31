@@ -1,5 +1,6 @@
 import { withPayload } from '@payloadcms/next/withPayload'
 import createNextIntlPlugin from 'next-intl/plugin'
+import { codeInspectorPlugin } from 'code-inspector-plugin'
 
 const withNextIntl = createNextIntlPlugin()
 
@@ -10,6 +11,15 @@ const nextConfig = {
   serverExternalPackages: ['jose', 'pg-cloudflare'],
   images: {
     domains: ['placehold.co'],
+  },
+
+  // Turbopack configuration for Next.js >= 15.3.x
+  turbopack: {
+    rules: codeInspectorPlugin({
+      bundler: 'turbopack',
+      editor: 'code',
+      hotKeys: ['altKey'],
+    }),
   },
 
   // Your Next.js config here

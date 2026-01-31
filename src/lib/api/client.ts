@@ -39,11 +39,9 @@ apiClient.interceptors.response.use(
   (error: AxiosError<ApiError>) => {
     // Handle 401 Unauthorized - token expired or invalid
     if (error.response?.status === 401) {
-      // Redirect to login if in browser
-      if (typeof window !== 'undefined') {
-        // Token is cleared server-side
-        window.location.href = '/login'
-      }
+      // Don't redirect automatically - let components handle it
+      // Middleware will redirect to login on protected routes
+      // Components using React Query can handle error state
     }
 
     // Transform error response

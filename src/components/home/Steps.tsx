@@ -1,28 +1,32 @@
+'use client'
 import { Divider } from '@heroui/react'
+import { useTranslations } from 'next-intl'
 import React from 'react'
 
 type Props = {}
 
 const Steps = (props: Props) => {
+  const t = useTranslations()
+
   const steps = [
     {
-      name: 'ابدأ الإدارة',
-      description: 'تتبع الطلبات، الحجوزات، والأدوات بكل سهولة.',
+      name: t('startManagement'),
+      description: t('startManagementDescription'),
     },
     {
-      name: 'خصص تطبيقك',
-      description: 'أضف لمساتك الشخصية وقم بتهيئة التطبيق وفقًا لاحتياجاتك.',
+      name: t('customizeApp'),
+      description: t('customizeAppDescription'),
     },
     {
-      name: 'سجل حسابك',
-      description: 'أنشئ حسابًا مجانًا في دقائق.',
+      name: t('registerAccount'),
+      description: t('registerAccountDescription'),
     },
   ]
 
   return (
     <div className="flex flex-col justify-center items-center gap-4 p-5 w-full">
       <h4 className="font-bold text-secondary-500 dark:text-secondary-400 text-lg text-center">
-        كيف تبدأ؟
+        {t('howToStart')}
       </h4>
       <ul className="items-start gap-4 grid grid-cols-3">
         {steps.map((step, index) => (

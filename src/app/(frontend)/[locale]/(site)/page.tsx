@@ -15,7 +15,6 @@ export default function App() {
       <Steps />
       <Testimonials />
       <ReadyToStart />
-      <ProductCard />
     </div>
   )
 }

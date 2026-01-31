@@ -2,6 +2,7 @@
 import { Button, Image } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import React from 'react'
+import { useTranslations } from 'next-intl'
 import type { Currency } from '@/payload-types'
 import { formatCurrency } from '@/lib/currency'
 
@@ -24,6 +25,7 @@ const ProductCard = ({
   discountPrice,
   onAddToCart,
 }: Props) => {
+  const t = useTranslations()
   const [count, setCount] = React.useState(0)
 
   const formattedPrice = React.useMemo(() => {
@@ -118,7 +120,7 @@ const ProductCard = ({
           className={`bg-primary-50 dark:bg-primary-900 dark:text-white text-medium leading-tight w-full ${count > 0 ? 'rounded-none' : ''} `}
           onPress={() => (count > 0 ? null : setCount(count + 1))}
         >
-          {count > 0 ? count : 'أضافة إلى السلة'}
+          {count > 0 ? count : t('addToCart')}
         </Button>
         {count > 0 && (
           <Button

@@ -9,7 +9,7 @@ import React from 'react'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { queryClient } from '@/lib/query/client'
-import { HeroUIProvider } from '@heroui/react'
+import { HeroUIProvider, ToastProvider } from '@heroui/react'
 import { NextIntlClientProvider } from 'next-intl'
 import { ThemeProvider } from 'next-themes'
 import { AppProgressBar as ProgressBar } from 'next-nprogress-bar'
@@ -26,6 +26,7 @@ export function Providers({ children, locale, messages }: ProvidersProps) {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <HeroUIProvider>
+            <ToastProvider />
             {children}
             <ProgressBar
               height="3px"

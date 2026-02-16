@@ -11,6 +11,7 @@ import {
 } from '@heroui/react'
 import { useCurrencies } from '@/hooks/currencies'
 import { Icon } from '@iconify/react'
+import { getCookie, setCookie } from '@/lib/cookies'
 
 const STORAGE_KEY = 'selectedCurrencyCode'
 
@@ -19,7 +20,7 @@ export const CurrencySwitcher = () => {
   const [selectedCurrency, setSelectedCurrency] = useState<string>('USD')
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY)
+    const stored = getCookie(STORAGE_KEY)
     if (stored) {
       setSelectedCurrency(stored)
     } else if (data?.docs && data.docs.length > 0) {
@@ -29,7 +30,7 @@ export const CurrencySwitcher = () => {
 
   const handleSelect = (key: string) => {
     setSelectedCurrency(key)
-    localStorage.setItem(STORAGE_KEY, key)
+    setCookie(STORAGE_KEY, key, { expires: 365 })
     // Here you could convert prices or emit an event
   }
 

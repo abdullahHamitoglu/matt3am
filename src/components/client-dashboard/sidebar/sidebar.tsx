@@ -18,56 +18,79 @@ import { SidebarMenu } from './sidebar-menu'
 import { FilterIcon } from '../icons/sidebar/filter-icon'
 import { useSidebarContext } from '../layout/layout-context'
 import { usePathname, useRouter } from 'next/navigation'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
+import { MedicalIconRestaurant } from '@/components/icons/MedicalIconRestaurant'
+import { IoLogOutSharp } from 'react-icons/io5'
+import { useLogout } from '@/hooks/auth/useLogout'
 
 export const SidebarWrapper = () => {
   const pathname = usePathname()
   const router = useRouter()
+  const locale = useLocale()
   const { collapsed, setCollapsed } = useSidebarContext()
   const t = useTranslations()
+  const { mutate: logout } = useLogout()
+
+  const withLocale = (path: string) => `/${locale}${path}`
+
   const menuConfig = [
     {
       title: t('mainMenu'),
       items: [
         {
+          title: t('restaurants.title') || 'Restaurants',
+          icon: <MedicalIconRestaurant className="text-default-400" />,
+          href: withLocale('/dashboard/restaurants'),
+        },
+        {
           title: t('orders'),
           icon: <PaymentsIcon />,
-          href: '/dashboard/orders',
+          href: withLocale('/dashboard/orders'),
         },
         {
           title: t('menus'),
           icon: <ProductsIcon />,
-          href: '/dashboard/menu',
+          type: 'collapse',
+          items: [
+            { name: t('menus'), href: withLocale('/dashboard/menus') },
+            { name: t('menuCategories'), href: withLocale('/dashboard/menus/categories') },
+          ],
         },
         {
           title: t('tables'),
           icon: <AccountsIcon />,
-          href: '/dashboard/tables',
+          href: withLocale('/dashboard/tables'),
         },
         {
           title: t('dashboard.reservations') || 'Reservations',
           icon: <CustomersIcon />,
-          href: '/dashboard/reservations',
+          href: withLocale('/dashboard/reservations'),
         },
         {
           title: t('dashboard.inventory') || 'Inventory',
           icon: <BalanceIcon />,
           type: 'collapse',
           items: [
-            { name: t('dashboard.inventory') || 'Inventory', href: '/dashboard/inventory' },
-            { name: t('dashboard.recipes') || 'Recipes', href: '/dashboard/inventory/recipes' },
-            { name: t('categories'), href: '/dashboard/inventory/categories' },
+            {
+              name: t('dashboard.inventory') || 'Inventory',
+              href: withLocale('/dashboard/inventory'),
+            },
+            {
+              name: t('dashboard.recipes') || 'Recipes',
+              href: withLocale('/dashboard/inventory/recipes'),
+            },
+            { name: t('categories'), href: withLocale('/dashboard/inventory/categories') },
           ],
         },
         {
           title: t('dashboard.loyaltyProgram') || 'Loyalty Program',
           icon: <FilterIcon />,
-          href: '/dashboard/loyalty-program',
+          href: withLocale('/dashboard/loyalty-program'),
         },
         {
           title: t('dashboard.reports') || 'Reports',
           icon: <ReportsIcon />,
-          href: '/dashboard/reports',
+          href: withLocale('/dashboard/reports'),
         },
       ],
     },
@@ -77,17 +100,17 @@ export const SidebarWrapper = () => {
         {
           title: t('customers'),
           icon: <CustomersIcon />,
-          href: '/dashboard/customers',
+          href: withLocale('/dashboard/customers'),
         },
         {
           title: t('dashboard.reviews') || 'Reviews',
           icon: <ViewIcon />,
-          href: '/dashboard/reviews',
+          href: withLocale('/dashboard/reviews'),
         },
         {
           title: t('settings.title'),
           icon: <SettingsIcon />,
-          href: '/dashboard/settings',
+          href: withLocale('/dashboard/settings'),
         },
       ],
     },
@@ -97,11 +120,19 @@ export const SidebarWrapper = () => {
         {
           title: t('users'),
           icon: <DevIcon />,
-          href: '/dashboard/users',
+          href: withLocale('/dashboard/users'),
         },
       ],
     },
   ]
+
+  const handleLogout = () => {
+    logout(undefined, {
+      onSuccess: () => {
+        router.push(`/${locale}/login`)
+      },
+    })
+  }
 
   return (
     <aside className="top-0 z-[20] sticky h-screen">
@@ -119,8 +150,8 @@ export const SidebarWrapper = () => {
             <SidebarItem
               title={t('home')}
               icon={<HomeIcon />}
-              isActive={pathname === '/dashboard' || pathname === '/'}
-              href="/dashboard"
+              isActive={pathname === withLocale('/dashboard') || pathname === `/${locale}`}
+              href={withLocale('/dashboard')}
             />
 
             {menuConfig.map((menu, index) => (
@@ -150,9 +181,17 @@ export const SidebarWrapper = () => {
             <Tooltip content={t('settings.title')} color="primary">
               <div
                 className="hover:opacity-80 max-w-fit transition-opacity cursor-pointer"
-                onClick={() => router.push('/dashboard/settings')}
+                onClick={() => router.push(withLocale('/dashboard/settings'))}
               >
                 <SettingsIcon />
+              </div>
+            </Tooltip>
+            <Tooltip content={t('settings.logout')} color="primary">
+              <div
+                className="hover:opacity-80 max-w-fit transition-opacity cursor-pointer"
+                onClick={handleLogout}
+              >
+                <IoLogOutSharp className="w-6 h-6 text-gray-700" />
               </div>
             </Tooltip>
           </div>

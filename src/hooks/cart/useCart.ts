@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { cartService, type Cart, type AddToCartParams } from '@/services/cart.service'
+import { getCookie, setCookie } from '@/lib/cookies'
 
 /**
  * Generate or get session ID for guest users
@@ -7,10 +8,10 @@ import { cartService, type Cart, type AddToCartParams } from '@/services/cart.se
 const getSessionId = (): string => {
   if (typeof window === 'undefined') return ''
 
-  let sessionId = localStorage.getItem('cart_session_id')
+  let sessionId = getCookie('cart_session_id')
   if (!sessionId) {
     sessionId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    localStorage.setItem('cart_session_id', sessionId)
+    setCookie('cart_session_id', sessionId, { expires: 365 })
   }
   return sessionId
 }

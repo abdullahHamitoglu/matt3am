@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from 'react'
 import { useUserPermissions } from '@/hooks/auth/useUserPermissions'
+import { getCookie, setCookie, removeCookie } from '@/lib/cookies'
 
 const STORAGE_KEY = 'selectedRestaurantId'
 
@@ -21,12 +22,12 @@ export const useRestaurantSelection = () => {
   // Convert restaurantIds array to string for stable dependency comparison
   const restaurantIdsKey = restaurantIds.join(',')
 
-  // Initialize selected restaurant from localStorage or default to first restaurant
+  // Initialize selected restaurant from cookies or default to first restaurant
   useEffect(() => {
     if (isLoadingUser || isInitialized) return
 
-    // Try to get from localStorage
-    const stored = localStorage.getItem(STORAGE_KEY)
+    // Try to get from cookies
+    const stored = getCookie(STORAGE_KEY)
 
     if (stored) {
       // Validate that the stored restaurant is still valid for this user
@@ -51,13 +52,13 @@ export const useRestaurantSelection = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoadingUser, restaurantIdsKey, isAdmin])
 
-  // Update localStorage when selection changes
+  // Update cookies when selection changes
   const setSelectedRestaurant = (id: string | null) => {
     setSelectedRestaurantState(id)
     if (id) {
-      localStorage.setItem(STORAGE_KEY, id)
+      setCookie(STORAGE_KEY, id, { expires: 365 })
     } else {
-      localStorage.removeItem(STORAGE_KEY)
+      removeCookie(STORAGE_KEY)
     }
   }
 

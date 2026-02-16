@@ -4,14 +4,15 @@ import { Button, Divider, Form, Input, Link } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import React, { useState } from 'react'
 import { useLogin } from '@/hooks/auth/useLogin'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import Image from 'next/image'
 
 export default function LoginPage() {
   const t = useTranslations()
   const router = useRouter()
-  const login = useLogin()
+  const locale = useLocale()
+  const login = useLogin(locale)
   const [error, setError] = useState<string>('')
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {

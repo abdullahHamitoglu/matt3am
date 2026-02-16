@@ -13,5 +13,16 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale,
     messages: (await import(`../../messages/${locale}.json`)).default,
     timeZone: 'Asia/Damascus',
+    formats: {
+      number: {
+        // Use Western Arabic numerals (0-9) for all locales including Arabic
+        // Instead of Eastern Arabic/Hindi numerals (٠-٩)
+        ...(locale === 'ar' && {
+          default: {
+            numberingSystem: 'latn', // Latin numerals (0-9)
+          },
+        }),
+      },
+    },
   }
 })

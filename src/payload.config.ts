@@ -22,6 +22,7 @@ import { Cart } from './collections/Cart'
 import { Reservations } from './collections/Reservations'
 import { Reviews } from './collections/Reviews'
 import { LoyaltyProgram } from './collections/LoyaltyProgram'
+import { arTranslation, trTranslation } from './data/payloadTranslation'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -33,11 +34,19 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
+  i18n: {
+    fallbackLanguage: 'en',
+    supportedLanguages: {
+      ar: arTranslation,
+      tr: trTranslation,
+    },
+  },
   localization: {
     locales: [
       {
         label: 'العربية',
         code: 'ar',
+        rtl: true,
       },
       {
         label: 'English',
@@ -48,7 +57,7 @@ export default buildConfig({
         code: 'tr',
       },
     ],
-    defaultLocale: 'ar',
+    defaultLocale: 'en',
     fallback: true,
   },
   collections: [

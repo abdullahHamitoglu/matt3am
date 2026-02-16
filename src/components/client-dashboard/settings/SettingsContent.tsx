@@ -23,6 +23,7 @@ import { useRestaurants, useUpdateRestaurant } from '@/hooks/restaurants'
 import { useLogout } from '@/hooks/auth/useLogout'
 import { useUpdateUser } from '@/hooks/users'
 import { useRouter, usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import type { Restaurant } from '@/payload-types'
 
 type SupportedLocale = 'ar' | 'en' | 'tr'
@@ -40,6 +41,9 @@ export const SettingsContent = () => {
 
   const user = currentUserResponse?.user
   const updateUserMutation = useUpdateUser(user?.id || '')
+  const t = useTranslations('settings')
+  const tCommon = useTranslations('common')
+  const tRestaurants = useTranslations('restaurants')
 
   // Password state
   const [currentPassword, setCurrentPassword] = useState('')
@@ -71,7 +75,7 @@ export const SettingsContent = () => {
         <div className="mx-auto px-4 lg:px-0 pt-3 sm:pt-10 w-full max-w-[90rem]">
           <Card>
             <CardBody className="p-12 text-center">
-              <p className="text-default-500">الرجاء تسجيل الدخول للوصول إلى الإعدادات.</p>
+              <p className="text-default-500">{t('loginRequired') || 'الرجاء تسجيل الدخول للوصول إلى الإعدادات.'}</p>
             </CardBody>
           </Card>
         </div>
@@ -95,14 +99,14 @@ export const SettingsContent = () => {
       await updateUserMutation.mutateAsync({ phone })
       await refetchUser()
       addToast({
-        title: 'تم التحديث',
-        description: 'تم تحديث رقم الهاتف بنجاح',
+        title: t('updated') || 'تم التحديث',
+        description: t('phoneUpdated') || 'تم تحديث رقم الهاتف بنجاح',
         color: 'success',
       })
     } catch (error) {
       addToast({
-        title: 'خطأ',
-        description: 'فشل تحديث رقم الهاتف',
+        title: t('error') || 'خطأ',
+        description: t('phoneUpdateFailed') || 'فشل تحديث رقم الهاتف',
         color: 'danger',
       })
     } finally {
@@ -113,8 +117,8 @@ export const SettingsContent = () => {
   const handleUpdatePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
       addToast({
-        title: 'خطأ',
-        description: 'الرجاء ملء جميع الحقول',
+        title: t('error') || 'خطأ',
+        description: t('fillAllFields') || 'الرجاء ملء جميع الحقول',
         color: 'danger',
       })
       return
@@ -122,8 +126,8 @@ export const SettingsContent = () => {
 
     if (newPassword !== confirmPassword) {
       addToast({
-        title: 'خطأ',
-        description: 'كلمات المرور غير متطابقة',
+        title: t('error') || 'خطأ',
+        description: t('passwordMismatch') || 'كلمات المرور غير متطابقة',
         color: 'danger',
       })
       return
@@ -131,8 +135,8 @@ export const SettingsContent = () => {
 
     if (newPassword.length < 6) {
       addToast({
-        title: 'خطأ',
-        description: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
+        title: t('error') || 'خطأ',
+        description: t('passwordTooShort') || 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
         color: 'danger',
       })
       return
@@ -145,14 +149,14 @@ export const SettingsContent = () => {
       setNewPassword('')
       setConfirmPassword('')
       addToast({
-        title: 'تم التحديث',
-        description: 'تم تغيير كلمة المرور بنجاح',
+        title: t('updated') || 'تم التحديث',
+        description: t('passwordUpdated') || 'تم تغيير كلمة المرور بنجاح',
         color: 'success',
       })
     } catch (error) {
       addToast({
-        title: 'خطأ',
-        description: 'فشل تغيير كلمة المرور',
+        title: t('error') || 'خطأ',
+        description: t('passwordUpdateFailed') || 'فشل تغيير كلمة المرور',
         color: 'danger',
       })
     } finally {
@@ -173,21 +177,21 @@ export const SettingsContent = () => {
       <div className="mx-auto px-4 lg:px-0 pt-3 sm:pt-10 w-full max-w-[90rem]">
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center mb-6">
-          <h1 className="font-bold text-2xl">الإعدادات</h1>
+          <h1 className="font-bold text-2xl">{t('title')}</h1>
         </div>
 
         <Tabs aria-label="Settings tabs" color="primary" variant="underlined">
           {/* Account Settings */}
-          <Tab key="account" title="الحساب">
+          <Tab key="account" title={t('account') || 'الحساب'}>
             <div className="gap-6 grid grid-cols-1 lg:grid-cols-2 mt-6">
               {/* Language Settings */}
               <Card>
                 <CardHeader>
-                  <h3 className="font-semibold text-lg">اللغة والعرض</h3>
+                  <h3 className="font-semibold text-lg">{t('language')}</h3>
                 </CardHeader>
                 <CardBody className="space-y-6">
                   <Select
-                    label="اللغة"
+                    label={t('language')}
                     selectedKeys={[selectedLanguage]}
                     onChange={(e) => handleLanguageChange(e.target.value as SupportedLocale)}
                   >
@@ -198,7 +202,7 @@ export const SettingsContent = () => {
 
                   <div className="bg-default-50 p-4 rounded-lg">
                     <p className="text-default-600 text-sm">
-                      اللغة الحالية:{' '}
+                      {t('languageHint') || 'اللغة الحالية'}:{' '}}
                       <strong>
                         {selectedLanguage === 'ar'
                           ? 'العربية'
@@ -214,15 +218,15 @@ export const SettingsContent = () => {
               {/* Phone Update */}
               <Card>
                 <CardHeader>
-                  <h3 className="font-semibold text-lg">معلومات الاتصال</h3>
+                  <h3 className="font-semibold text-lg">{t('contactInfo') || 'معلومات الاتصال'}</h3>
                 </CardHeader>
                 <CardBody className="space-y-4">
                   <Input
-                    label="رقم الهاتف"
+                    label={t('phone') || 'رقم الهاتف'}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     variant="bordered"
-                    placeholder="أدخل رقم الهاتف"
+                    placeholder={t('phonePlaceholder') || 'أدخل رقم الهاتف'}
                   />
                   <Button
                     color="primary"
@@ -231,7 +235,7 @@ export const SettingsContent = () => {
                     onPress={handleUpdatePhone}
                     isDisabled={phone === user.phone}
                   >
-                    تحديث رقم الهاتف
+                    {t('updatePhone') || 'تحديث رقم الهاتف'}
                   </Button>
                 </CardBody>
               </Card>
@@ -239,41 +243,41 @@ export const SettingsContent = () => {
           </Tab>
 
           {/* Security Settings */}
-          <Tab key="security" title="الأمان">
+          <Tab key="security" title={t('security') || 'الأمان'}>
             <div className="gap-6 grid grid-cols-1 lg:grid-cols-2 mt-6">
               {/* Password Change */}
               <Card>
                 <CardHeader>
-                  <h3 className="font-semibold text-lg">تغيير كلمة المرور</h3>
+                  <h3 className="font-semibold text-lg">{t('changePassword') || 'تغيير كلمة المرور'}</h3>
                 </CardHeader>
                 <CardBody className="space-y-4">
                   <Input
-                    label="كلمة المرور الحالية"
+                    label={t('currentPassword') || 'كلمة المرور الحالية'}
                     type="password"
-                    placeholder="أدخل كلمة المرور الحالية"
+                    placeholder={t('currentPasswordPlaceholder') || 'أدخل كلمة المرور الحالية'}
                     variant="bordered"
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                   />
                   <Input
-                    label="كلمة المرور الجديدة"
+                    label={t('newPassword') || 'كلمة المرور الجديدة'}
                     type="password"
-                    placeholder="أدخل كلمة المرور الجديدة"
+                    placeholder={t('newPasswordPlaceholder') || 'أدخل كلمة المرور الجديدة'}
                     variant="bordered"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                   />
                   <Input
-                    label="تأكيد كلمة المرور"
+                    label={t('confirmPassword') || 'تأكيد كلمة المرور'}
                     type="password"
-                    placeholder="أعد إدخال كلمة المرور الجديدة"
+                    placeholder={t('confirmPasswordPlaceholder') || 'أعد إدخال كلمة المرور الجديدة'}
                     variant="bordered"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     isInvalid={confirmPassword !== '' && newPassword !== confirmPassword}
                     errorMessage={
                       confirmPassword !== '' && newPassword !== confirmPassword
-                        ? 'كلمات المرور غير متطابقة'
+                        ? t('passwordMismatch') || 'كلمات المرور غير متطابقة'
                         : ''
                     }
                   />
@@ -284,7 +288,7 @@ export const SettingsContent = () => {
                     onPress={handleUpdatePassword}
                     isDisabled={!currentPassword || !newPassword || !confirmPassword}
                   >
-                    تحديث كلمة المرور
+                    {t('updatePassword') || 'تحديث كلمة المرور'}
                   </Button>
                 </CardBody>
               </Card>
@@ -292,10 +296,10 @@ export const SettingsContent = () => {
               {/* Session Management */}
               <Card>
                 <CardHeader>
-                  <h3 className="font-semibold text-lg">الجلسات</h3>
+                  <h3 className="font-semibold text-lg">{t('sessions') || 'الجلسات'}</h3>
                 </CardHeader>
                 <CardBody className="space-y-4">
-                  <p className="text-default-500 text-sm">إدارة جلساتك النشطة على مختلف الأجهزة.</p>
+                  <p className="text-default-500 text-sm">{t('sessionsDesc') || 'إدارة جلساتك النشطة على مختلف الأجهزة.'}</p>
 
                   {user.sessions && user.sessions.length > 0 ? (
                     <div className="space-y-3">
@@ -305,20 +309,20 @@ export const SettingsContent = () => {
                           className="flex justify-between items-center bg-default-50 p-3 rounded-lg"
                         >
                           <div>
-                            <p className="font-medium text-sm">جلسة {index + 1}</p>
+                            <p className="font-medium text-sm">{t('session') || 'جلسة'} {index + 1}</p>
                             <p className="text-default-500 text-xs">
-                              تنتهي: {new Date(session.expiresAt).toLocaleDateString('ar-SA')}
+                              {t('expires') || 'تنتهي'}: {new Date(session.expiresAt).toLocaleDateString()}
                             </p>
                           </div>
                           <Chip size="sm" color="success" variant="flat">
-                            نشطة
+                            {t('active') || 'نشطة'}
                           </Chip>
                         </div>
                       ))}
                     </div>
                   ) : (
                     <div className="bg-default-50 p-4 rounded-lg text-center">
-                      <p className="text-default-400 text-sm">الجلسة الحالية فقط نشطة</p>
+                      <p className="text-default-400 text-sm">{t('currentSessionOnly') || 'الجلسة الحالية فقط نشطة'}</p>
                     </div>
                   )}
 
@@ -331,7 +335,7 @@ export const SettingsContent = () => {
                     isLoading={isLoggingOut}
                     onPress={handleLogout}
                   >
-                    تسجيل الخروج
+                    {t('logout')}
                   </Button>
                 </CardBody>
               </Card>
@@ -340,12 +344,12 @@ export const SettingsContent = () => {
 
           {/* Restaurant Settings - Only for admins or users with restaurants */}
           {(isAdmin || userRestaurants.length > 0) && (
-            <Tab key="restaurants" title="الفروع">
+            <Tab key="restaurants" title={tRestaurants('title') || 'الفروع'}>
               <div className="gap-6 grid grid-cols-1 mt-6">
                 <Card>
                   <CardHeader className="flex justify-between items-center">
                     <h3 className="font-semibold text-lg">
-                      {isAdmin ? 'جميع الفروع' : 'الفروع المعينة لك'}
+                      {isAdmin ? tRestaurants('list') || 'جميع الفروع' : tRestaurants('assignedBranches') || 'الفروع المعينة لك'}
                     </h3>
                     {isAdmin && (
                       <Button
@@ -355,7 +359,7 @@ export const SettingsContent = () => {
                           router.push(`/${currentLocale}/admin/collections/restaurants`)
                         }
                       >
-                        إدارة الفروع
+                        {tRestaurants('management') || 'إدارة الفروع'}
                       </Button>
                     )}
                   </CardHeader>
@@ -380,7 +384,7 @@ export const SettingsContent = () => {
                         {((isAdmin ? restaurantsData?.docs : userRestaurants)?.length || 0) ===
                           0 && (
                           <div className="col-span-full py-8 text-center">
-                            <p className="text-default-500">لا توجد فروع</p>
+                            <p className="text-default-500">{tRestaurants('noRestaurants') || 'لا توجد فروع'}</p>
                           </div>
                         )}
                       </div>
@@ -393,11 +397,11 @@ export const SettingsContent = () => {
 
           {/* Admin Settings */}
           {isAdmin && (
-            <Tab key="admin" title="النظام">
+            <Tab key="admin" title={t('system') || 'النظام'}>
               <div className="gap-6 grid grid-cols-1 lg:grid-cols-2 mt-6">
                 <Card>
                   <CardHeader>
-                    <h3 className="font-semibold text-lg">روابط سريعة</h3>
+                    <h3 className="font-semibold text-lg">{t('quickLinks') || 'روابط سريعة'}</h3>
                   </CardHeader>
                   <CardBody className="space-y-3">
                     <Button
@@ -405,62 +409,62 @@ export const SettingsContent = () => {
                       className="justify-start w-full"
                       onPress={() => router.push(`/admin`)}
                     >
-                      🔧 لوحة تحكم Payload
+                      🔧 {t('payloadDashboard') || 'لوحة تحكم Payload'}
                     </Button>
                     <Button
                       variant="flat"
                       className="justify-start w-full"
                       onPress={() => router.push(`/admin/collections/users`)}
                     >
-                      👥 إدارة المستخدمين
+                      👥 {t('manageUsers') || 'إدارة المستخدمين'}
                     </Button>
                     <Button
                       variant="flat"
                       className="justify-start w-full"
                       onPress={() => router.push(`/admin/collections/roles`)}
                     >
-                      🛡️ إدارة الأدوار
+                      🛡️ {t('manageRoles') || 'إدارة الأدوار'}
                     </Button>
                     <Button
                       variant="flat"
                       className="justify-start w-full"
                       onPress={() => router.push(`/admin/collections/currencies`)}
                     >
-                      💰 إدارة العملات
+                      💰 {t('manageCurrencies') || 'إدارة العملات'}
                     </Button>
                     <Button
                       variant="flat"
                       className="justify-start w-full"
                       onPress={() => router.push(`/admin/collections/categories`)}
                     >
-                      📁 إدارة التصنيفات
+                      📁 {t('manageCategories') || 'إدارة التصنيفات'}
                     </Button>
                   </CardBody>
                 </Card>
 
                 <Card>
                   <CardHeader>
-                    <h3 className="font-semibold text-lg">معلومات النظام</h3>
+                    <h3 className="font-semibold text-lg">{t('systemInfo') || 'معلومات النظام'}</h3>
                   </CardHeader>
                   <CardBody className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-default-500">إجمالي الفروع</span>
+                      <span className="text-default-500">{t('totalBranches') || 'إجمالي الفروع'}</span>
                       <Chip color="primary" variant="flat">
                         {restaurantsData?.totalDocs || 0}
                       </Chip>
                     </div>
                     <Divider />
                     <div className="flex justify-between items-center">
-                      <span className="text-default-500">الفروع النشطة</span>
+                      <span className="text-default-500">{t('activeBranches') || 'الفروع النشطة'}</span>
                       <Chip color="success" variant="flat">
                         {restaurantsData?.docs?.filter((r: Restaurant) => r.isActive).length || 0}
                       </Chip>
                     </div>
                     <Divider />
                     <div className="flex justify-between items-center">
-                      <span className="text-default-500">نوع الحساب</span>
+                      <span className="text-default-500">{t('accountType') || 'نوع الحساب'}</span>
                       <Chip color="danger" variant="flat">
-                        مدير النظام
+                        {t('systemAdmin') || 'مدير النظام'}
                       </Chip>
                     </div>
                   </CardBody>
@@ -477,19 +481,20 @@ export const SettingsContent = () => {
 // Restaurant Card Component
 const RestaurantCard = ({ restaurant, isAdmin }: { restaurant: Restaurant; isAdmin: boolean }) => {
   const updateMutation = useUpdateRestaurant(restaurant.id)
+  const t = useTranslations('settings')
 
   const handleToggleActive = async () => {
     try {
       await updateMutation.mutateAsync({ isActive: !restaurant.isActive })
       addToast({
-        title: 'تم التحديث',
-        description: `تم ${restaurant.isActive ? 'تعطيل' : 'تفعيل'} الفرع`,
+        title: t('updated') || 'تم التحديث',
+        description: `${restaurant.isActive ? t('branchDisabled') || 'تم تعطيل الفرع' : t('branchEnabled') || 'تم تفعيل الفرع'}`,
         color: 'success',
       })
     } catch (error) {
       addToast({
-        title: 'خطأ',
-        description: 'فشل تحديث حالة الفرع',
+        title: t('error') || 'خطأ',
+        description: t('branchUpdateFailed') || 'فشل تحديث حالة الفرع',
         color: 'danger',
       })
     }
@@ -501,7 +506,7 @@ const RestaurantCard = ({ restaurant, isAdmin }: { restaurant: Restaurant; isAdm
         <div className="flex justify-between items-start mb-2">
           <h4 className="font-medium">{restaurant.name}</h4>
           <Chip size="sm" color={restaurant.isActive ? 'success' : 'default'} variant="flat">
-            {restaurant.isActive ? 'نشط' : 'معطل'}
+            {restaurant.isActive ? t('active') || 'نشط' : t('inactive') || 'معطل'}
           </Chip>
         </div>
         <p className="text-default-500 text-sm">{restaurant.city}</p>
@@ -509,23 +514,23 @@ const RestaurantCard = ({ restaurant, isAdmin }: { restaurant: Restaurant; isAdm
         <div className="flex flex-wrap gap-1 mt-3">
           {restaurant.features?.hasDineIn && (
             <Chip size="sm" variant="bordered">
-              طعام محلي
+              {t('dineIn') || 'طعام محلي'}
             </Chip>
           )}
           {restaurant.features?.hasTakeaway && (
             <Chip size="sm" variant="bordered">
-              استلام
+              {t('takeaway') || 'استلام'}
             </Chip>
           )}
           {restaurant.features?.hasDelivery && (
             <Chip size="sm" variant="bordered">
-              توصيل
+              {t('delivery') || 'توصيل'}
             </Chip>
           )}
         </div>
         {isAdmin && (
           <div className="flex justify-between items-center mt-4 pt-3 border-default-200 border-t">
-            <span className="text-default-500 text-xs">تفعيل/تعطيل</span>
+            <span className="text-default-500 text-xs">{t('toggleActive') || 'تفعيل/تعطيل'}</span>
             <Switch
               size="sm"
               isSelected={restaurant.isActive ?? false}

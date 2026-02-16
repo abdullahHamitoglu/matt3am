@@ -34,7 +34,7 @@ export const FormModal = ({
             Cancel
           </Button>
           {onSubmit && (
-            <Button color="primary" onPress={onSubmit} isLoading={isLoading}>
+            <Button color="primary" onPress={onSubmit} type="submit" isLoading={isLoading}>
               {submitLabel}
             </Button>
           )}

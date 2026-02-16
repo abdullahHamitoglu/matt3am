@@ -11,6 +11,10 @@ export function proxy(request: NextRequest) {
   const localeCookie = request.cookies?.get('NEXT_LOCALE')
   const Locale = localeCookie?.value || 'en'
 
+  // Ignore admin routes - no localization
+  if (pathname.startsWith('/admin')) {
+    return NextResponse.next()
+  }
   // Ignore static files and images
   if (
     pathname.startsWith('/_next/static/') ||
@@ -22,11 +26,6 @@ export function proxy(request: NextRequest) {
 
   // Ignore API routes - handled separately
   if (pathname.startsWith('/api/')) {
-    return NextResponse.next()
-  }
-
-  // Ignore admin routes - no localization
-  if (pathname.startsWith('/admin')) {
     return NextResponse.next()
   }
 

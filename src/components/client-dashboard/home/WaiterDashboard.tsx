@@ -196,11 +196,11 @@ export const WaiterDashboard: React.FC = () => {
               {orders.map((order: Order) => {
                 const customerName =
                   typeof order.customer === 'object' && order.customer
-                    ? `${order.customer?.name} ${order.customer.name}`
-                    : 'Guest'
+                    ? order.customer.name
+                    : t('guest') || 'Guest'
 
                 const orderTotal = order.pricing?.total || 0
-                const orderTime = new Date(order.createdAt).toLocaleTimeString('ar-SA', {
+                const orderTime = new Date(order.createdAt).toLocaleTimeString(undefined, {
                   hour: '2-digit',
                   minute: '2-digit',
                 })
@@ -226,13 +226,13 @@ export const WaiterDashboard: React.FC = () => {
                           variant="flat"
                           color={getStatusColor(order.status || 'pending')}
                         >
-                          {order.status}
+                          {t(order.status || 'pending')}
                         </Chip>
                       </div>
 
                       <div className="flex justify-between items-center pt-2 border-default-200 dark:border-default-700 border-t">
                         <span className="font-bold text-foreground text-xl">
-                          {formatCurrency(orderTotal, { locale: 'ar-SA', currency: 'USD' })}
+                          {formatCurrency(orderTotal)}
                         </span>
                         <span className="text-default-400 dark:text-default-500 text-sm">
                           {orderTime}

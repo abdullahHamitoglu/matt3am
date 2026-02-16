@@ -43,7 +43,6 @@ function checkIsAdmin(user: Partial<User> | null | undefined): boolean {
  */
 function extractRestaurants(user: Partial<User> | null | undefined): Restaurant[] {
   if (!user?.restaurant) return []
-
   const restaurantsArray = Array.isArray(user.restaurant) ? user.restaurant : [user.restaurant]
 
   return restaurantsArray
@@ -68,7 +67,7 @@ function extractRestaurantIds(user: Partial<User> | null | undefined): string[] 
 function extractPosition(
   user: Partial<User> | null | undefined,
 ): 'manager' | 'waiter' | 'chef' | 'cashier' | 'delivery' | 'receptionist' | null {
-  if (!user?.employeeInfo?.position) return null
+  if (!user?.roles) return null
   return user.employeeInfo.position
 }
 

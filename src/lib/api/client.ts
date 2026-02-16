@@ -6,12 +6,17 @@
 import axios, { AxiosError, AxiosResponse } from 'axios'
 import { API_BASE_URL } from './endpoints'
 import type { ApiError } from './types'
+import { cookies } from '../cookies'
 
 // Create axios instance
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    'accept-language': cookies.get('NEXT_LOCALE') || 'en',
+  },
+  params: {
+    locale: cookies.get('NEXT_LOCALE') || 'en',
   },
   withCredentials: true, // Include cookies for CSRF
 })

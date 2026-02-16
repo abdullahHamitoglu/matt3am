@@ -15,6 +15,10 @@ export const GET = async (request: NextRequest) => {
       return NextResponse.json({ message: 'No token provided' }, { status: 401 })
     }
 
+    // Get locale from query params or header (default: 'ar')
+    const { searchParams } = new URL(request.url)
+    const locale = searchParams.get('locale') || request.headers.get('x-locale') || 'ar'
+
     // Create a new Headers object with the token in Authorization header
     // Payload's auth method expects token in Authorization header
     const headers = new Headers(request.headers)
@@ -29,8 +33,16 @@ export const GET = async (request: NextRequest) => {
       return NextResponse.json({ message: 'Invalid or expired token' }, { status: 401 })
     }
 
+    // Fetch full user data with locale support for localized fields
+    const fullUser = await payload.findByID({
+      collection: 'users',
+      id: user.id,
+      locale: locale as any,
+      depth: 2, // Include related data like restaurant
+    })
+
     return NextResponse.json({
-      user,
+      user: fullUser,
     })
   } catch (error: any) {
     console.error('Get current user error:', error)

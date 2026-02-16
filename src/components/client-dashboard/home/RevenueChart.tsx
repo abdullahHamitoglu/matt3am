@@ -5,12 +5,13 @@
  * Dynamic revenue chart using ApexCharts
  */
 
-import React from 'react'
+import React, { use } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import dynamic from 'next/dynamic'
-import { Card, CardBody, Skeleton } from '@heroui/react'
+import { Alert, Card, CardBody, Skeleton } from '@heroui/react'
 import { analyticsService } from '@/services/analytics.service'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
+import { useTheme } from 'next-themes'
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false })
 
@@ -21,10 +22,12 @@ interface RevenueChartProps {
 
 export const RevenueChart: React.FC<RevenueChartProps> = ({ restaurantId, days = 30 }) => {
   const t = useTranslations('dashboard')
+  const locale = useLocale()
+  const theme = useTheme()
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['revenue-data', restaurantId, days],
-    queryFn: () => analyticsService.getRevenueData(restaurantId, days),
+    queryKey: ['revenue-data', restaurantId, days, locale],
+    queryFn: () => analyticsService.getRevenueData(restaurantId, days, locale),
     refetchInterval: 60000, // Refresh every minute
     refetchOnWindowFocus: false,
     retry: 1, // Only retry once on failure
@@ -42,17 +45,18 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({ restaurantId, days =
 
   if (error) {
     return (
-      <Card className="w-full">
-        <CardBody>
-          <p className="text-danger">Failed to load chart data</p>
-        </CardBody>
-      </Card>
+      <Alert color="danger" className="w-full">
+        {t('revenueChartLoadError')}
+      </Alert>
     )
   }
 
   if (!data) return null
 
   const options: ApexCharts.ApexOptions = {
+    theme: {
+      mode: theme.resolvedTheme === 'dark' ? 'dark' : 'light',
+    },
     chart: {
       type: 'area',
       toolbar: {
@@ -80,7 +84,7 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({ restaurantId, days =
     yaxis: {
       labels: {
         formatter: (value) => {
-          return value.toLocaleString('ar-SA')
+          return value.toLocaleString('en-SA')
         },
       },
     },

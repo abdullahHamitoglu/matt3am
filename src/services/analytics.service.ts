@@ -31,10 +31,17 @@ class AnalyticsService {
   /**
    * Get dashboard statistics
    */
-  async getDashboardStats(restaurantId?: string): Promise<DashboardStats> {
+  async getDashboardStats(restaurantId?: string, locale?: string): Promise<DashboardStats> {
     try {
-      const params = restaurantId ? `?restaurantId=${restaurantId}` : ''
-      const response = await apiClient.get<DashboardStats>(`/api/analytics/stats${params}`)
+      const params = new URLSearchParams()
+      if (restaurantId) params.append('restaurantId', restaurantId)
+      if (locale) params.append('locale', locale)
+      params.append('fallback-locale', 'none')
+
+      const paramsString = params.toString()
+      const response = await apiClient.get<DashboardStats>(
+        `/analytics/stats${paramsString ? `?${paramsString}` : ''}`,
+      )
       return response.data
     } catch (error) {
       console.error('Error fetching dashboard stats:', error)
@@ -45,13 +52,22 @@ class AnalyticsService {
   /**
    * Get revenue chart data
    */
-  async getRevenueData(restaurantId?: string, days: number = 30): Promise<RevenueData> {
+  async getRevenueData(
+    restaurantId?: string | null,
+    days: number = 30,
+    locale?: string,
+  ): Promise<RevenueData> {
     try {
       const params = new URLSearchParams()
       if (restaurantId) params.append('restaurantId', restaurantId)
       params.append('days', days.toString())
+      if (locale) params.append('locale', locale)
+      params.append('fallback-locale', 'none')
 
-      const response = await apiClient.get<RevenueData>(`/api/analytics/revenue?${params}`)
+      const headers = locale ? { 'x-locale': locale } : {}
+      const response = await apiClient.get<RevenueData>(`/analytics/revenue?${params}`, {
+        headers,
+      })
       return response.data
     } catch (error) {
       console.error('Error fetching revenue data:', error)

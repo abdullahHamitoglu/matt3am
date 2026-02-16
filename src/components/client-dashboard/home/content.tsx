@@ -11,10 +11,13 @@ import { DefaultDashboard } from './DefaultDashboard'
 import { DashboardSkeleton } from './DashboardSkeleton'
 import { Card, CardBody, Button } from '@heroui/react'
 import { useTranslations } from 'next-intl'
+import { deleteAuthCookie } from '@/hooks/auth/useAuth'
+import { useRouter } from 'next/navigation'
 
 export const Content = () => {
   const { position, isAdmin, isLoading, user } = useUserPermissions()
   const t = useTranslations('dashboard')
+  const router = useRouter()
 
   if (isLoading) {
     return <DashboardSkeleton />
@@ -52,7 +55,15 @@ export const Content = () => {
                   {t('loginRequired') || 'Please log in to access the dashboard'}
                 </p>
               </div>
-              <Button color="primary" variant="shadow" className="mt-2" as="a" href="/login">
+              <Button
+                color="primary"
+                variant="shadow"
+                className="mt-2"
+                onPress={async () => {
+                  await deleteAuthCookie()
+                  router.push('/login')
+                }}
+              >
                 {t('loginButton') || 'Log In'}
               </Button>
             </CardBody>

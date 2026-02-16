@@ -22,6 +22,9 @@ export const POST = async (request: NextRequest) => {
         email: email as string,
         password: password as string,
       },
+      req: request,
+      locale: request.headers.get('x-locale') || 'ar',
+      fallbackLocale: 'none',
     })
 
     // Get the token from result

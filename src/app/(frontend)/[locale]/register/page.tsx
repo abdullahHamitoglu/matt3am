@@ -1,6 +1,6 @@
 'use client'
 
-import { Button, Divider, Form, Input, Link } from '@heroui/react'
+import { addToast, Button, Divider, Form, Input, Link } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import React, { useState } from 'react'
 import { useRegister } from '@/hooks/auth/useRegister'
@@ -35,6 +35,13 @@ export default function RegisterPage() {
       await register.mutateAsync({ firstName, lastName, email, password, phone })
       router.push('/dashboard')
     } catch (err: any) {
+      err?.errors?.errors?.map((e: any) => {
+        addToast({
+          title: t('error'),
+          description: e.message,
+          color: 'danger',
+        })
+      })
       setError(err?.message || t('registerError'))
     }
   }

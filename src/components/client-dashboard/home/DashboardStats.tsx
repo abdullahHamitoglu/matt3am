@@ -9,7 +9,7 @@ import React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslations } from 'next-intl'
 import { StatCard } from './StatCard'
-import { Skeleton } from '@heroui/react'
+import { Alert, Skeleton } from '@heroui/react'
 import { analyticsService } from '@/services/analytics.service'
 import { useUserPermissions } from '@/hooks/auth/useUserPermissions'
 import { formatCurrency } from '@/lib/currency'
@@ -53,9 +53,9 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ restaurantId }) 
 
   if (!stats) {
     return (
-      <div className="bg-warning-50 p-4 border border-warning-200 rounded-lg">
-        <p className="text-warning-700">No data available</p>
-      </div>
+      <Alert color="warning" className="w-full">
+        {t('statsLoadError')}
+      </Alert>
     )
   }
 
@@ -63,7 +63,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ restaurantId }) 
     <div className="gap-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <StatCard
         title={t('totalRevenue')}
-        value={formatCurrency(stats.totalRevenue, { locale: 'en-US', currency: 'USD' })}
+        value={formatCurrency(stats.totalRevenue)}
         trend={stats.revenueTrend}
         color="success"
         subtitle={t('thisMonth') || 'This month'}
@@ -113,7 +113,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ restaurantId }) 
       />
       <StatCard
         title={t('avgOrderValue') || 'Avg Order'}
-        value={formatCurrency(stats.avgOrderValue || 0, { locale: 'en-US', currency: 'USD' })}
+        value={formatCurrency(stats.totalOrders > 0 ? stats.totalRevenue / stats.totalOrders : 0)}
         color="secondary"
         subtitle={t('perOrder') || 'Per order'}
         icon={

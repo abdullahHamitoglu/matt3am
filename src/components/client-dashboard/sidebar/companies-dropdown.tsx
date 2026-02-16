@@ -114,7 +114,7 @@ export const CompaniesDropdown = () => {
         selectionMode="single"
         selectedKeys={selectedRestaurant ? [selectedRestaurant] : []}
       >
-        <DropdownSection title={t('restaurants')}>
+        <DropdownSection title={t('restaurants.title')}>
           {restaurants.map((restaurant) => (
             <DropdownItem
               key={restaurant.id}

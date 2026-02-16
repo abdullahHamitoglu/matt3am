@@ -16,8 +16,23 @@ export const authService = {
   /**
    * Login with email and password
    */
-  async login(payload: AuthPayload): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>(AUTH_ENDPOINTS.LOGIN, payload)
+  async login(payload: AuthPayload, locale: string): Promise<AuthResponse> {
+    const response = await apiClient<AuthResponse>({
+      url: AUTH_ENDPOINTS.LOGIN,
+      method: 'POST',
+      data: {
+        ...payload,
+        locale,
+        fallbackLocale: false,
+      },
+      params: {
+        'fallback-locale': 'none',
+        locale,
+      },
+      headers: {
+        'x-locale': locale,
+      },
+    })
     console.log('Auth service - login response:', response.data)
     // Token is stored in HTTP-only cookie by the server
     return response.data

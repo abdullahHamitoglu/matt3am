@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import type { User } from '@/payload-types'
+import { getApiMessage } from '@/lib/api-messages'
 
 /**
  * Helper to check if user has Administrator role
@@ -28,17 +29,19 @@ export async function GET(request: NextRequest) {
       headers: request.headers,
     })
 
+    const searchParams = request.nextUrl.searchParams
+    let restaurantId = searchParams.get('restaurantId')
+    const locale = request.headers.get('x-locale') || searchParams.get('locale') || 'ar'
+    const fallbackLocale = searchParams.get('fallback-locale') || 'none'
+
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: getApiMessage('unauthorized', locale) }, { status: 401 })
     }
 
     // Check if user is active
     if ('isActive' in user && user.isActive === false) {
-      return NextResponse.json({ error: 'Account is inactive' }, { status: 403 })
+      return NextResponse.json({ error: getApiMessage('accountInactive', locale) }, { status: 403 })
     }
-
-    const searchParams = request.nextUrl.searchParams
-    let restaurantId = searchParams.get('restaurantId')
 
     // Enforce restaurant scoping for non-admins
     if (!isAdminUser(user)) {
@@ -47,7 +50,10 @@ export async function GET(request: NextRequest) {
         : []
 
       if (userRestaurants.length === 0) {
-        return NextResponse.json({ error: 'No restaurants assigned' }, { status: 403 })
+        return NextResponse.json(
+          { error: getApiMessage('noRestaurantsAssigned', locale) },
+          { status: 403 },
+        )
       }
 
       // If no restaurantId provided, default to first restaurant
@@ -55,10 +61,7 @@ export async function GET(request: NextRequest) {
         restaurantId = userRestaurants[0]
       } else if (!userRestaurants.includes(restaurantId)) {
         // User trying to access restaurant they're not assigned to
-        return NextResponse.json(
-          { error: 'Forbidden - You do not have access to this restaurant' },
-          { status: 403 },
-        )
+        return NextResponse.json({ error: getApiMessage('forbidden', locale) }, { status: 403 })
       }
     }
 
@@ -74,6 +77,11 @@ export async function GET(request: NextRequest) {
       where: whereQuery,
       limit: 1000,
       sort: '-createdAt',
+      locale: locale as 'ar' | 'en' | 'tr',
+      fallbackLocale:
+        fallbackLocale === 'none' || fallbackLocale === 'null' || fallbackLocale === 'false'
+          ? false
+          : (fallbackLocale as 'ar' | 'en' | 'tr'),
     })
 
     const orders = ordersResponse.docs
@@ -144,6 +152,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(stats)
   } catch (error) {
     console.error('Error fetching dashboard stats:', error)
-    return NextResponse.json({ error: 'Failed to fetch dashboard stats' }, { status: 500 })
+    const locale = request.nextUrl.searchParams.get('locale') || 'ar'
+    return NextResponse.json({ error: getApiMessage('internalError', locale) }, { status: 500 })
   }
 }

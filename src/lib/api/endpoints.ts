@@ -16,7 +16,9 @@ export const AUTH_ENDPOINTS = {
 
 // Collection endpoints
 export const COLLECTION_ENDPOINTS = {
+  CART: '/cart',
   CATEGORIES: '/categories',
+  CURRENCIES: '/currencies',
   INVENTORY_ITEMS: '/inventory-items',
   LOYALTY_PROGRAM: '/loyalty-program',
   MEDIA: '/media',

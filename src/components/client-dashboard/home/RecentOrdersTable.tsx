@@ -18,11 +18,13 @@ import {
   Chip,
   Link,
   Skeleton,
+  Alert,
 } from '@heroui/react'
 import NextLink from 'next/link'
 import { ordersService } from '@/services/orders.service'
 import { formatCurrency } from '@/lib/currency'
 import type { Order } from '@/payload-types'
+import { useCurrencyDetail } from '@/hooks'
 
 interface RecentOrdersTableProps {
   restaurantId?: string | null
@@ -46,6 +48,7 @@ export const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({
   limit = 15,
 }) => {
   const t = useTranslations('dashboard')
+  const { data: currencyDetail } = useCurrencyDetail(restaurantId)
 
   const { data: ordersResponse, isLoading } = useQuery({
     queryKey: ['recent-orders', restaurantId, limit],
@@ -55,7 +58,7 @@ export const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({
         where.restaurant = { equals: restaurantId }
       }
 
-      return ordersService.getAll({
+      return ordersService.list({
         where,
         limit,
         sort: '-createdAt',
@@ -80,31 +83,31 @@ export const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({
 
   if (orders.length === 0) {
     return (
-      <div className="bg-default-100 p-8 rounded-lg text-center">
-        <p className="text-default-500">{t('noOrders')}</p>
-      </div>
+      <Alert color="secondary">
+        <p>{t('noOrders')}</p>
+      </Alert>
     )
   }
 
   return (
     <Table aria-label="Recent orders table">
       <TableHeader>
-        <TableColumn>ORDER #</TableColumn>
-        <TableColumn>CUSTOMER</TableColumn>
-        <TableColumn>TYPE</TableColumn>
-        <TableColumn>STATUS</TableColumn>
-        <TableColumn>TOTAL</TableColumn>
-        <TableColumn>DATE</TableColumn>
+        <TableColumn>{t('orderNumber') || 'ORDER #'}</TableColumn>
+        <TableColumn>{t('customer') || 'CUSTOMER'}</TableColumn>
+        <TableColumn>{t('orderType') || 'TYPE'}</TableColumn>
+        <TableColumn>{t('orderStatus') || 'STATUS'}</TableColumn>
+        <TableColumn>{t('total') || 'TOTAL'}</TableColumn>
+        <TableColumn>{t('date') || 'DATE'}</TableColumn>
       </TableHeader>
       <TableBody>
         {orders.map((order: Order) => {
           const customerName =
             typeof order.customer === 'object' && order.customer
-              ? `${order.customer.firstName} ${order.customer.lastName}`
-              : 'Guest'
+              ? order.customer.name
+              : t('guest') || 'Guest'
 
           const orderTotal = order.pricing?.total || 0
-          const orderDate = new Date(order.createdAt).toLocaleDateString('ar-SA', {
+          const orderDate = new Date(order.createdAt).toLocaleDateString(undefined, {
             month: 'short',
             day: 'numeric',
             hour: '2-digit',
@@ -124,13 +127,20 @@ export const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({
                 </Link>
               </TableCell>
               <TableCell>{customerName}</TableCell>
-              <TableCell className="capitalize">{order.orderType || 'dine-in'}</TableCell>
+              <TableCell className="capitalize">
+                {t(order.orderType || 'dine-in') || order.orderType || 'dine-in'}
+              </TableCell>
               <TableCell>
                 <Chip size="sm" color={getStatusColor(order.status || 'pending')}>
-                  {order.status || 'pending'}
+                  {t(order.status || 'pending')}
                 </Chip>
               </TableCell>
-              <TableCell>{formatCurrency(orderTotal, { locale: 'ar-SA' })}</TableCell>
+              <TableCell>
+                {formatCurrency(orderTotal, {
+                  locale: 'ar-SA',
+                  currency: currencyDetail?.code || 'SAR',
+                })}
+              </TableCell>
               <TableCell className="text-default-500 text-sm">{orderDate}</TableCell>
             </TableRow>
           )

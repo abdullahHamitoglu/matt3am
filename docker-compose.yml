@@ -26,10 +26,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        PAYLOAD_SECRET: ${PAYLOAD_SECRET}
-        DATABASE_URL: mongodb://${MONGO_USERNAME:-matt3am}:${MONGO_PASSWORD:-matt3am_secret}@mongo:27017/matt3am?authSource=admin
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api}
     container_name: matt3am-app
     restart: unless-stopped
     ports:

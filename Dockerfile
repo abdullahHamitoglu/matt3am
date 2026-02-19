@@ -18,15 +18,17 @@ FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build args become env vars during build
-ARG PAYLOAD_SECRET
-ARG DATABASE_URL
+# Build args with safe defaults so build never fails from missing env vars
+# These are overridden at runtime by docker-compose environment vars
+ARG PAYLOAD_SECRET=build-time-placeholder-secret-will-be-replaced
+ARG DATABASE_URL=mongodb://localhost:27017/matt3am
 ARG NEXT_PUBLIC_API_URL=/api
 
 ENV PAYLOAD_SECRET=${PAYLOAD_SECRET}
 ENV DATABASE_URL=${DATABASE_URL}
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV DOCKER_BUILD=1
 ENV NODE_OPTIONS="--no-deprecation --max-old-space-size=8000"
 
 RUN pnpm build
@@ -41,15 +43,11 @@ RUN addgroup --system --gid 1001 nodejs \
 
 WORKDIR /app
 
-# Copy built output
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
+# Copy standalone output (output: 'standalone' in next.config.ts)
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.ts ./next.config.ts
-COPY --from=builder /app/tsconfig.json ./tsconfig.json
 COPY --from=builder /app/messages ./messages
-COPY --from=builder /app/src ./src
 
 # Set correct permissions
 RUN chown -R nextjs:nodejs /app
@@ -60,4 +58,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["pnpm", "start"]
+CMD ["node", "server.js"]

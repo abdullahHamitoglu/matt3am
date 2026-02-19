@@ -44,19 +44,40 @@ export const buildResourceEndpoint = (
 }
 
 // Helper to build query string
-export const buildQueryString = (params: Record<string, any>): string => {
-  const searchParams = new URLSearchParams()
+// Helper to flatten nested objects into Payload qs-style bracket notation
+// e.g. { where: { status: { equals: 'ready' } } } → where[status][equals]=ready
+const flattenParams = (
+  obj: Record<string, any>,
+  prefix = '',
+  result: [string, string][] = [],
+): [string, string][] => {
+  for (const [key, value] of Object.entries(obj)) {
+    if (value === undefined || value === null) continue
+    const fullKey = prefix ? `${prefix}[${key}]` : key
 
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      if (Array.isArray(value)) {
-        value.forEach((v) => searchParams.append(key, String(v)))
-      } else {
-        searchParams.append(key, String(value))
-      }
+    if (Array.isArray(value)) {
+      // Check if array items are primitives or objects
+      value.forEach((item, index) => {
+        if (typeof item === 'object' && item !== null) {
+          flattenParams(item, `${fullKey}[${index}]`, result)
+        } else {
+          result.push([`${fullKey}[${index}]`, String(item)])
+        }
+      })
+    } else if (typeof value === 'object') {
+      flattenParams(value, fullKey, result)
+    } else {
+      result.push([fullKey, String(value)])
     }
-  })
+  }
+  return result
+}
 
-  const queryString = searchParams.toString()
-  return queryString ? `?${queryString}` : ''
+export const buildQueryString = (params: Record<string, any>): string => {
+  const pairs = flattenParams(params)
+  if (pairs.length === 0) return ''
+
+  const searchParams = new URLSearchParams()
+  pairs.forEach(([key, value]) => searchParams.append(key, value))
+  return `?${searchParams.toString()}`
 }

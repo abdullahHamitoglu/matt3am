@@ -1,0 +1,55 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build output
+.next
+.open-next
+dist
+out
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+.cursor
+*.swp
+*.swo
+
+# Environment (secrets)
+.env
+.env.local
+.env.*.local
+
+# Tests
+tests
+coverage
+playwright-report
+test-results
+
+# Docs / misc
+docs
+*.md
+!README.md
+LICENSE
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Cloudflare (not needed in Docker)
+wrangler.jsonc
+open-next.config.ts
+cloudflare-env.d.ts
+
+# Debug
+npm-debug.log*
+pnpm-debug.log*

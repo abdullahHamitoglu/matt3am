@@ -3,17 +3,22 @@
 /**
  * ChefDashboard
  * Kitchen Display System for Chef role
- * Shows orders in queue, preparing, and ready states
+ * Uses new dashboard theme with orange/slate design system
  */
 
 import React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslations } from 'next-intl'
-import { Card, CardBody, CardHeader, Chip, Skeleton } from '@heroui/react'
+import { Chip, Skeleton } from '@heroui/react'
 import { useRestaurantSelection } from '@/hooks/restaurants'
 import { ordersService } from '@/services/orders.service'
 import { StatCard } from './StatCard'
 import type { Order } from '@/payload-types'
+import {
+  DashboardPageWrapper,
+  DashboardSection,
+  DashboardCard,
+} from '@/components/new-dashboard/foundation'
 
 export const ChefDashboard: React.FC = () => {
   const t = useTranslations('dashboard')
@@ -66,11 +71,9 @@ export const ChefDashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="p-4 h-full">
-        <div className="mx-auto max-w-[90rem]">
-          <Skeleton className="rounded-lg w-full h-96" />
-        </div>
-      </div>
+      <DashboardPageWrapper>
+        <div className="bg-white dark:bg-slate-900 shadow-sm p-6 border border-slate-100 dark:border-slate-800 rounded-3xl h-96 animate-pulse" />
+      </DashboardPageWrapper>
     )
   }
 
@@ -84,229 +87,215 @@ export const ChefDashboard: React.FC = () => {
     const timeElapsed = Math.floor((Date.now() - new Date(order.createdAt).getTime()) / 60000)
 
     const getPriorityColor = () => {
-      if (timeElapsed > 30) return 'text-danger-600 dark:text-danger-400'
-      if (timeElapsed > 15) return 'text-warning-600 dark:text-warning-400'
-      return 'text-success-600 dark:text-success-400'
+      if (timeElapsed > 30) return 'text-red-600 dark:text-red-400'
+      if (timeElapsed > 15) return 'text-amber-600 dark:text-amber-400'
+      return 'text-emerald-600 dark:text-emerald-400'
     }
 
     return (
-      <Card className="bg-content1 shadow-md hover:shadow-xl mb-3 border-none transition-all duration-300">
-        <CardHeader className="flex justify-between pb-2">
+      <DashboardCard className="hover:shadow-md mb-3 transition-all duration-300">
+        <div className="flex justify-between pb-2">
           <div className="flex flex-col gap-1">
-            <p className="font-medium text-default-500 dark:text-default-400 text-sm">
+            <p className="font-medium text-slate-500 dark:text-slate-400 text-sm">
               {t('table')} {tableNumber}
             </p>
-            <p className="font-semibold text-foreground text-lg">
+            <p className="font-semibold text-slate-800 dark:text-slate-100 text-lg">
               {t('order')} #{order.orderNumber || order.id.slice(0, 8)}
             </p>
           </div>
           <div className="flex flex-col gap-1 text-right">
-            <p className="text-default-500 dark:text-default-400 text-sm">{orderTime}</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">{orderTime}</p>
             <Chip size="sm" variant="flat" className={getPriorityColor()}>
               {timeElapsed} min
             </Chip>
           </div>
-        </CardHeader>
-        <CardBody className="pt-2">
-          <div className="flex flex-col gap-2">
-            {order.items?.map((item, idx) => {
-              const menuItem =
-                typeof item.menuItem === 'object' && item.menuItem ? item.menuItem.name : 'Unknown'
-              return (
-                <div
-                  key={idx}
-                  className="flex justify-between items-start pb-2 last:pb-0 border-default-200 dark:border-default-700 last:border-0 border-b text-sm"
-                >
-                  <span className="font-medium text-foreground">
-                    <span className="font-bold text-primary">{item.quantity}x</span> {menuItem}
+        </div>
+        <div className="flex flex-col gap-2 pt-2">
+          {order.items?.map((item, idx) => {
+            const menuItem =
+              typeof item.menuItem === 'object' && item.menuItem ? item.menuItem.name : 'Unknown'
+            return (
+              <div
+                key={idx}
+                className="flex justify-between items-start pb-2 last:pb-0 border-slate-200 dark:border-slate-700 last:border-0 border-b text-sm"
+              >
+                <span className="font-medium text-slate-800 dark:text-slate-100">
+                  <span className="font-bold text-orange-500">{item.quantity}x</span> {menuItem}
+                </span>
+                {item.specialInstructions && (
+                  <span className="max-w-[50%] text-amber-600 dark:text-amber-400 text-xs text-right italic">
+                    {item.specialInstructions}
                   </span>
-                  {item.specialInstructions && (
-                    <span className="max-w-[50%] text-warning-600 dark:text-warning-400 text-xs text-right italic">
-                      {item.specialInstructions}
-                    </span>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </CardBody>
-      </Card>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </DashboardCard>
     )
   }
 
   return (
-    <div className="bg-background h-full min-h-screen">
-      <div className="mx-auto px-4 lg:px-6 pt-6 sm:pt-10 pb-10 w-full max-w-[90rem]">
-        {/* Header */}
-        <div className="flex flex-col gap-2 mb-8">
-          <h1 className="font-bold text-foreground text-3xl">
-            {t('chefDashboard') || 'Kitchen Display System'}
-          </h1>
-          <p className="text-default-500 dark:text-default-400">
-            {t('chefDashboardDesc') || 'Manage orders in kitchen workflow'}
-          </p>
+    <DashboardPageWrapper>
+      {/* Top Stats */}
+      <div className="gap-5 grid grid-cols-1 md:grid-cols-3">
+        <StatCard
+          title={t('ordersInQueue')}
+          value={pendingOrders.length}
+          color="warning"
+          icon={
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          }
+        />
+        <StatCard
+          title={t('preparing')}
+          value={preparingOrders.length}
+          color="primary"
+          icon={
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
+            </svg>
+          }
+        />
+        <StatCard
+          title={t('completedToday')}
+          value={completedToday}
+          color="success"
+          icon={
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          }
+        />
+      </div>
+
+      {/* Kitchen Display - Kanban Style */}
+      <div className="gap-4 grid grid-cols-1 lg:grid-cols-3">
+        {/* Pending Column */}
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/10 p-3 border-2 border-amber-200 dark:border-amber-800 rounded-2xl">
+            <svg
+              className="w-5 h-5 text-amber-600 dark:text-amber-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <h3 className="font-semibold text-slate-800 dark:text-slate-100 text-lg">
+              {t('pending')}
+            </h3>
+            <Chip size="sm" color="warning" variant="flat" className="ml-auto">
+              {pendingOrders.length}
+            </Chip>
+          </div>
+          <div className="flex flex-col gap-3">
+            {pendingOrders.length === 0 ? (
+              <DashboardCard>
+                <p className="p-8 text-slate-400 dark:text-slate-500 text-sm text-center">
+                  {t('noOrders')}
+                </p>
+              </DashboardCard>
+            ) : (
+              pendingOrders.map((order) => <OrderCard key={order.id} order={order} />)
+            )}
+          </div>
         </div>
 
-        {/* Top Stats */}
-        <div className="gap-5 grid grid-cols-1 md:grid-cols-3 mb-8">
-          <StatCard
-            title={t('ordersInQueue')}
-            value={pendingOrders.length}
-            color="warning"
-            icon={
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            }
-          />
-          <StatCard
-            title={t('preparing')}
-            value={preparingOrders.length}
-            color="primary"
-            icon={
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
-            }
-          />
-          <StatCard
-            title={t('completedToday')}
-            value={completedToday}
-            color="success"
-            icon={
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            }
-          />
+        {/* Preparing Column */}
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2 bg-orange-50 dark:bg-orange-900/10 p-3 border-2 border-orange-200 dark:border-orange-800 rounded-2xl">
+            <svg
+              className="w-5 h-5 text-orange-600 dark:text-orange-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
+            </svg>
+            <h3 className="font-semibold text-slate-800 dark:text-slate-100 text-lg">
+              {t('preparing')}
+            </h3>
+            <Chip size="sm" color="primary" variant="flat" className="ml-auto">
+              {preparingOrders.length}
+            </Chip>
+          </div>
+          <div className="flex flex-col gap-3">
+            {preparingOrders.length === 0 ? (
+              <DashboardCard>
+                <p className="p-8 text-slate-400 dark:text-slate-500 text-sm text-center">
+                  {t('noOrders')}
+                </p>
+              </DashboardCard>
+            ) : (
+              preparingOrders.map((order) => <OrderCard key={order.id} order={order} />)
+            )}
+          </div>
         </div>
 
-        {/* Kitchen Display - Kanban Style */}
-        <div className="gap-4 grid grid-cols-1 lg:grid-cols-3">
-          {/* Pending Column */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 bg-warning-50 dark:bg-warning-900/10 p-3 border-2 border-warning-200 dark:border-warning-800 rounded-lg">
-              <svg
-                className="w-5 h-5 text-warning-600 dark:text-warning-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <h3 className="font-semibold text-foreground text-lg">{t('pending')}</h3>
-              <Chip size="sm" color="warning" variant="flat" className="ml-auto">
-                {pendingOrders.length}
-              </Chip>
-            </div>
-            <div className="flex flex-col gap-3">
-              {pendingOrders.length === 0 ? (
-                <Card className="bg-content1 border-none">
-                  <CardBody className="p-8 text-center">
-                    <p className="text-default-400 dark:text-default-500 text-sm">
-                      {t('noOrders')}
-                    </p>
-                  </CardBody>
-                </Card>
-              ) : (
-                pendingOrders.map((order) => <OrderCard key={order.id} order={order} />)
-              )}
-            </div>
+        {/* Ready Column */}
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/10 p-3 border-2 border-emerald-200 dark:border-emerald-800 rounded-2xl">
+            <svg
+              className="w-5 h-5 text-emerald-600 dark:text-emerald-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <h3 className="font-semibold text-slate-800 dark:text-slate-100 text-lg">
+              {t('ready')}
+            </h3>
+            <Chip size="sm" color="success" variant="flat" className="ml-auto">
+              {readyOrders.length}
+            </Chip>
           </div>
-
-          {/* Preparing Column */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 bg-primary-50 dark:bg-primary-900/10 p-3 border-2 border-primary-200 dark:border-primary-800 rounded-lg">
-              <svg
-                className="w-5 h-5 text-primary-600 dark:text-primary-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
-              <h3 className="font-semibold text-foreground text-lg">{t('preparing')}</h3>
-              <Chip size="sm" color="primary" variant="flat" className="ml-auto">
-                {preparingOrders.length}
-              </Chip>
-            </div>
-            <div className="flex flex-col gap-3">
-              {preparingOrders.length === 0 ? (
-                <Card className="bg-content1 border-none">
-                  <CardBody className="p-8 text-center">
-                    <p className="text-default-400 dark:text-default-500 text-sm">
-                      {t('noOrders')}
-                    </p>
-                  </CardBody>
-                </Card>
-              ) : (
-                preparingOrders.map((order) => <OrderCard key={order.id} order={order} />)
-              )}
-            </div>
-          </div>
-
-          {/* Ready Column */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 bg-success-50 dark:bg-success-900/10 p-3 border-2 border-success-200 dark:border-success-800 rounded-lg">
-              <svg
-                className="w-5 h-5 text-success-600 dark:text-success-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <h3 className="font-semibold text-foreground text-lg">{t('ready')}</h3>
-              <Chip size="sm" color="success" variant="flat" className="ml-auto">
-                {readyOrders.length}
-              </Chip>
-            </div>
-            <div className="flex flex-col gap-3">
-              {readyOrders.length === 0 ? (
-                <Card className="bg-content1 border-none">
-                  <CardBody className="p-8 text-center">
-                    <p className="text-default-400 dark:text-default-500 text-sm">
-                      {t('noOrders')}
-                    </p>
-                  </CardBody>
-                </Card>
-              ) : (
-                readyOrders.map((order) => <OrderCard key={order.id} order={order} />)
-              )}
-            </div>
+          <div className="flex flex-col gap-3">
+            {readyOrders.length === 0 ? (
+              <DashboardCard>
+                <p className="p-8 text-slate-400 dark:text-slate-500 text-sm text-center">
+                  {t('noOrders')}
+                </p>
+              </DashboardCard>
+            ) : (
+              readyOrders.map((order) => <OrderCard key={order.id} order={order} />)
+            )}
           </div>
         </div>
       </div>
-    </div>
+    </DashboardPageWrapper>
   )
 }

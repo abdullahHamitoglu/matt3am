@@ -286,7 +286,18 @@
     "statsLoadError": "Failed to load statistics",
     "revenueOverview": "Revenue Overview",
     "revenueChartLoadError": "Failed to load revenue chart",
-    "thisMonth": "This Month"
+    "thisMonth": "This Month",
+    "subtitle": "Restaurant Management System",
+    "profile": "Profile",
+    "orders": "Orders",
+    "tables": "Tables",
+    "menuItems": "Menu Items",
+    "search": "Search orders, tables, menu...",
+    "noResults": "No results found",
+    "tryDifferentSearch": "Try a different search term",
+    "searching": "Searching...",
+    "results": "Results",
+    "navigate": "Navigate"
   },
   "profile": {
     "title": "Profile",
@@ -795,7 +806,8 @@
     "create": "Create",
     "saveChanges": "Save Changes",
     "deleteUser": "Delete User",
-    "deleteConfirm": "Are you sure you want to delete \"{name}\"? This action cannot be undone."
+    "deleteConfirm": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+    "delete": "Delete"
   },
   "reportsPage": {
     "title": "Reports & Analytics",

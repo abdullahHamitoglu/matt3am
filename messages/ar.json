@@ -278,7 +278,18 @@
     "statsLoadError": "فشل تحميل الإحصائيات",
     "revenueOverview": "نظرة عامة على الإيرادات",
     "revenueChartLoadError": "فشل تحميل مخطط الإيرادات",
-    "thisMonth": "هذا الشهر"
+    "thisMonth": "هذا الشهر",
+    "subtitle": "نظام إدارة المطاعم",
+    "profile": "الملف الشخصي",
+    "orders": "الطلبات",
+    "tables": "الطاولات",
+    "menuItems": "عناصر القائمة",
+    "search": "البحث في الطلبات، الطاولات، القائمة...",
+    "noResults": "لم يتم العثور على نتائج",
+    "tryDifferentSearch": "جرب مصطلح بحث مختلف",
+    "searching": "جاري البحث...",
+    "results": "النتائج",
+    "navigate": "التنقل"
   },
   "profile": {
     "title": "الملف الشخصي",
@@ -787,7 +798,8 @@
     "create": "إنشاء",
     "saveChanges": "حفظ التغييرات",
     "deleteUser": "حذف المستخدم",
-    "deleteConfirm": "هل أنت متأكد من حذف \"{name}\"؟ لا يمكن التراجع عن هذا الإجراء."
+    "deleteConfirm": "هل أنت متأكد من حذف \"{name}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+    "delete": "حذف"
   },
   "reportsPage": {
     "title": "التقارير والتحليلات",

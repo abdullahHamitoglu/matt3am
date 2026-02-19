@@ -1,0 +1,74 @@
+services:
+  # ---- MongoDB ----
+  mongo:
+    image: mongo:7
+    container_name: matt3am-mongo
+    restart: unless-stopped
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:-matt3am}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-matt3am_secret}
+      MONGO_INITDB_DATABASE: matt3am
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - matt3am-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ---- Next.js + Payload CMS App ----
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PAYLOAD_SECRET: ${PAYLOAD_SECRET}
+        DATABASE_URL: mongodb://${MONGO_USERNAME:-matt3am}:${MONGO_PASSWORD:-matt3am_secret}@mongo:27017/matt3am?authSource=admin
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api}
+    container_name: matt3am-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - PAYLOAD_SECRET=${PAYLOAD_SECRET}
+      - DATABASE_URL=mongodb://${MONGO_USERNAME:-matt3am}:${MONGO_PASSWORD:-matt3am_secret}@mongo:27017/matt3am?authSource=admin
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-/api}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - matt3am-network
+
+  # ---- Mongo Express (Admin UI - optional, dev only) ----
+  mongo-express:
+    image: mongo-express:latest
+    container_name: matt3am-mongo-express
+    restart: unless-stopped
+    ports:
+      - "${MONGO_EXPRESS_PORT:-8081}:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USERNAME:-matt3am}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASSWORD:-matt3am_secret}
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_USERNAME:-matt3am}:${MONGO_PASSWORD:-matt3am_secret}@mongo:27017/?authSource=admin
+      ME_CONFIG_BASICAUTH: "false"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - matt3am-network
+    profiles:
+      - dev
+
+volumes:
+  mongo_data:
+    driver: local
+
+networks:
+  matt3am-network:
+    driver: bridge

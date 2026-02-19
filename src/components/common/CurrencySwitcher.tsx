@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import {
   Dropdown,
   DropdownTrigger,
@@ -9,36 +9,16 @@ import {
   Button,
   Spinner,
 } from '@heroui/react'
-import { useCurrencies } from '@/hooks/currencies'
+import { useCurrencySelection } from '@/hooks/currencies'
 import { Icon } from '@iconify/react'
-import { getCookie, setCookie } from '@/lib/cookies'
-
-const STORAGE_KEY = 'selectedCurrencyCode'
 
 export const CurrencySwitcher = () => {
-  const { data, isLoading } = useCurrencies()
-  const [selectedCurrency, setSelectedCurrency] = useState<string>('USD')
-
-  useEffect(() => {
-    const stored = getCookie(STORAGE_KEY)
-    if (stored) {
-      setSelectedCurrency(stored)
-    } else if (data?.docs && data.docs.length > 0) {
-      setSelectedCurrency(data.docs[0].code)
-    }
-  }, [data])
-
-  const handleSelect = (key: string) => {
-    setSelectedCurrency(key)
-    setCookie(STORAGE_KEY, key, { expires: 365 })
-    // Here you could convert prices or emit an event
-  }
+  const { selectedCode, setSelectedCurrency, currencies, isLoading } = useCurrencySelection()
 
   if (isLoading) {
     return <Spinner size="sm" />
   }
 
-  const currencies = data?.docs || []
   if (currencies.length === 0) return null
 
   return (
@@ -49,16 +29,16 @@ export const CurrencySwitcher = () => {
           size="sm"
           startContent={<Icon icon="solar:dollar-minimalistic-bold" width={20} />}
         >
-          {selectedCurrency}
+          {selectedCode}
         </Button>
       </DropdownTrigger>
       <DropdownMenu
         aria-label="Currency Actions"
         selectionMode="single"
-        selectedKeys={new Set([selectedCurrency])}
+        selectedKeys={new Set([selectedCode ?? ''])}
         onSelectionChange={(keys) => {
           const key = Array.from(keys)[0] as string
-          if (key) handleSelect(key)
+          if (key) setSelectedCurrency(key)
         }}
       >
         {currencies.map((currency) => (

@@ -75,7 +75,9 @@ export const SettingsContent = () => {
         <div className="mx-auto px-4 lg:px-0 pt-3 sm:pt-10 w-full max-w-[90rem]">
           <Card>
             <CardBody className="p-12 text-center">
-              <p className="text-default-500">{t('loginRequired') || 'الرجاء تسجيل الدخول للوصول إلى الإعدادات.'}</p>
+              <p className="text-default-500">
+                {t('loginRequired') || 'الرجاء تسجيل الدخول للوصول إلى الإعدادات.'}
+              </p>
             </CardBody>
           </Card>
         </div>
@@ -202,7 +204,7 @@ export const SettingsContent = () => {
 
                   <div className="bg-default-50 p-4 rounded-lg">
                     <p className="text-default-600 text-sm">
-                      {t('languageHint') || 'اللغة الحالية'}:{' '}}
+                      {t('languageHint') || 'اللغة الحالية'}:{' '}
                       <strong>
                         {selectedLanguage === 'ar'
                           ? 'العربية'
@@ -248,7 +250,9 @@ export const SettingsContent = () => {
               {/* Password Change */}
               <Card>
                 <CardHeader>
-                  <h3 className="font-semibold text-lg">{t('changePassword') || 'تغيير كلمة المرور'}</h3>
+                  <h3 className="font-semibold text-lg">
+                    {t('changePassword') || 'تغيير كلمة المرور'}
+                  </h3>
                 </CardHeader>
                 <CardBody className="space-y-4">
                   <Input
@@ -299,7 +303,9 @@ export const SettingsContent = () => {
                   <h3 className="font-semibold text-lg">{t('sessions') || 'الجلسات'}</h3>
                 </CardHeader>
                 <CardBody className="space-y-4">
-                  <p className="text-default-500 text-sm">{t('sessionsDesc') || 'إدارة جلساتك النشطة على مختلف الأجهزة.'}</p>
+                  <p className="text-default-500 text-sm">
+                    {t('sessionsDesc') || 'إدارة جلساتك النشطة على مختلف الأجهزة.'}
+                  </p>
 
                   {user.sessions && user.sessions.length > 0 ? (
                     <div className="space-y-3">
@@ -309,9 +315,12 @@ export const SettingsContent = () => {
                           className="flex justify-between items-center bg-default-50 p-3 rounded-lg"
                         >
                           <div>
-                            <p className="font-medium text-sm">{t('session') || 'جلسة'} {index + 1}</p>
+                            <p className="font-medium text-sm">
+                              {t('session') || 'جلسة'} {index + 1}
+                            </p>
                             <p className="text-default-500 text-xs">
-                              {t('expires') || 'تنتهي'}: {new Date(session.expiresAt).toLocaleDateString()}
+                              {t('expires') || 'تنتهي'}:{' '}
+                              {new Date(session.expiresAt).toLocaleDateString()}
                             </p>
                           </div>
                           <Chip size="sm" color="success" variant="flat">
@@ -322,7 +331,9 @@ export const SettingsContent = () => {
                     </div>
                   ) : (
                     <div className="bg-default-50 p-4 rounded-lg text-center">
-                      <p className="text-default-400 text-sm">{t('currentSessionOnly') || 'الجلسة الحالية فقط نشطة'}</p>
+                      <p className="text-default-400 text-sm">
+                        {t('currentSessionOnly') || 'الجلسة الحالية فقط نشطة'}
+                      </p>
                     </div>
                   )}
 
@@ -349,7 +360,9 @@ export const SettingsContent = () => {
                 <Card>
                   <CardHeader className="flex justify-between items-center">
                     <h3 className="font-semibold text-lg">
-                      {isAdmin ? tRestaurants('list') || 'جميع الفروع' : tRestaurants('assignedBranches') || 'الفروع المعينة لك'}
+                      {isAdmin
+                        ? tRestaurants('list') || 'جميع الفروع'
+                        : tRestaurants('assignedBranches') || 'الفروع المعينة لك'}
                     </h3>
                     {isAdmin && (
                       <Button
@@ -384,7 +397,9 @@ export const SettingsContent = () => {
                         {((isAdmin ? restaurantsData?.docs : userRestaurants)?.length || 0) ===
                           0 && (
                           <div className="col-span-full py-8 text-center">
-                            <p className="text-default-500">{tRestaurants('noRestaurants') || 'لا توجد فروع'}</p>
+                            <p className="text-default-500">
+                              {tRestaurants('noRestaurants') || 'لا توجد فروع'}
+                            </p>
                           </div>
                         )}
                       </div>
@@ -448,14 +463,18 @@ export const SettingsContent = () => {
                   </CardHeader>
                   <CardBody className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-default-500">{t('totalBranches') || 'إجمالي الفروع'}</span>
+                      <span className="text-default-500">
+                        {t('totalBranches') || 'إجمالي الفروع'}
+                      </span>
                       <Chip color="primary" variant="flat">
                         {restaurantsData?.totalDocs || 0}
                       </Chip>
                     </div>
                     <Divider />
                     <div className="flex justify-between items-center">
-                      <span className="text-default-500">{t('activeBranches') || 'الفروع النشطة'}</span>
+                      <span className="text-default-500">
+                        {t('activeBranches') || 'الفروع النشطة'}
+                      </span>
                       <Chip color="success" variant="flat">
                         {restaurantsData?.docs?.filter((r: Restaurant) => r.isActive).length || 0}
                       </Chip>

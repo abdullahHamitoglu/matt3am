@@ -25,7 +25,7 @@ import {
   useDisclosure,
 } from '@heroui/react'
 import { Icon } from '@iconify/react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useOrders } from '@/hooks/orders'
 import { useRestaurantSelection } from '@/hooks/restaurants'
 import type { Order } from '@/payload-types'
@@ -83,6 +83,7 @@ export const OrdersContent: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState<string>('all')
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const locale = useLocale()
 
   const t = useTranslations('ordersPage')
   const limit = 10

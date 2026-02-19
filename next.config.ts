@@ -8,7 +8,8 @@ const isDocker = process.env.DOCKER_BUILD === '1'
 let codeInspectorPlugin: any = null
 if (!isDocker) {
   try {
-    codeInspectorPlugin = (await import('code-inspector-plugin')).codeInspectorPlugin
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    codeInspectorPlugin = require('code-inspector-plugin').codeInspectorPlugin
   } catch {
     // code-inspector-plugin not available (production build)
   }

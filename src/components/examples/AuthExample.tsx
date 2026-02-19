@@ -7,13 +7,14 @@
 
 import { useState } from 'react'
 import { useLogin, useLogout, useRegister, useCurrentUser } from '@/hooks'
+import { useLocale } from 'next-intl'
 
 export function AuthExample() {
   const [email, setEmail] = useState('admin@example.com')
   const [password, setPassword] = useState('password')
   const [name, setName] = useState('')
-
-  const login = useLogin()
+  const locale = useLocale()
+  const login = useLogin(locale)
   const logout = useLogout()
   const register = useRegister()
   const { data: currentUser, isLoading } = useCurrentUser()
@@ -61,14 +62,17 @@ export function AuthExample() {
           <p>
             <strong>Email:</strong> {currentUser.user.email}
           </p>
-          {currentUser.user.name && (
+          {(currentUser.user as any).name && (
             <p>
-              <strong>Name:</strong> {currentUser.user.name}
+              <strong>Name:</strong> {(currentUser.user as any).name}
             </p>
           )}
           {currentUser.user.roles && (
             <p>
-              <strong>Roles:</strong> {currentUser.user.roles.join(', ')}
+              <strong>Roles:</strong>{' '}
+              {(currentUser.user.roles as any[])
+                .map((r) => (typeof r === 'string' ? r : r.name))
+                .join(', ')}
             </p>
           )}
           <button onClick={handleLogout} disabled={logout.isPending}>

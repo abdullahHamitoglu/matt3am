@@ -16,7 +16,6 @@ import {
 import { useTranslations } from 'next-intl'
 import { Icon } from '@iconify/react'
 import { Restaurant } from '@/payload-types'
-import { formatCurrency } from '@/lib/currency'
 
 interface RestaurantsTableProps {
   restaurants: Restaurant[]

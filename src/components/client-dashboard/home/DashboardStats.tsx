@@ -13,6 +13,7 @@ import { Alert, Skeleton } from '@heroui/react'
 import { analyticsService } from '@/services/analytics.service'
 import { useUserPermissions } from '@/hooks/auth/useUserPermissions'
 import { formatCurrency } from '@/lib/currency'
+import { useCurrencySelection } from '@/hooks'
 
 interface DashboardStatsProps {
   restaurantId?: string | null
@@ -32,6 +33,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ restaurantId }) 
     retry: 1, // Only retry once on failure
     enabled: hasPermission('read', 'reports'),
   })
+  const { selectedCurrency } = useCurrencySelection()
 
   if (!hasPermission('read', 'reports')) {
     return (
@@ -63,7 +65,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ restaurantId }) 
     <div className="gap-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <StatCard
         title={t('totalRevenue')}
-        value={formatCurrency(stats.totalRevenue)}
+        value={formatCurrency(stats.totalRevenue, { currency: selectedCurrency })}
         trend={stats.revenueTrend}
         color="success"
         subtitle={t('thisMonth') || 'This month'}
@@ -113,7 +115,9 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ restaurantId }) 
       />
       <StatCard
         title={t('avgOrderValue') || 'Avg Order'}
-        value={formatCurrency(stats.totalOrders > 0 ? stats.totalRevenue / stats.totalOrders : 0)}
+        value={formatCurrency(stats.totalOrders > 0 ? stats.totalRevenue / stats.totalOrders : 0, {
+          currency: selectedCurrency,
+        })}
         color="secondary"
         subtitle={t('perOrder') || 'Per order'}
         icon={

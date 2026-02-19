@@ -22,6 +22,7 @@ import {
   DashboardSection,
   DashboardCard,
 } from '@/components/new-dashboard/foundation'
+import { useCurrencySelection } from '@/hooks'
 
 const getStatusColor = (status: string) => {
   const statusColors: Record<string, 'default' | 'primary' | 'success' | 'warning' | 'danger'> = {
@@ -39,6 +40,7 @@ export const WaiterDashboard: React.FC = () => {
   const t = useTranslations('dashboard')
   const { user } = useUserPermissions()
   const { selectedRestaurant } = useRestaurantSelection()
+  const { selectedCurrency } = useCurrencySelection()
 
   // Fetch orders assigned to this waiter
   const { data: ordersResponse, isLoading } = useQuery({
@@ -221,7 +223,7 @@ export const WaiterDashboard: React.FC = () => {
 
                     <div className="flex justify-between items-center pt-2 border-slate-200 dark:border-slate-700 border-t">
                       <span className="font-bold text-slate-800 dark:text-slate-100 text-xl">
-                        {formatCurrency(orderTotal)}
+                        {formatCurrency(orderTotal, { currency: selectedCurrency })}
                       </span>
                       <span className="text-slate-400 dark:text-slate-500 text-sm">
                         {orderTime}

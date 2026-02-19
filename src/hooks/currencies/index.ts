@@ -11,3 +11,5 @@ export const {
   useDelete: useDeleteCurrency,
   queryKeys: currencyQueryKeys,
 } = createCollectionHooks(currencyService, { collectionKey: 'currencies' })
+
+export { useCurrencySelection } from './useCurrencySelection'

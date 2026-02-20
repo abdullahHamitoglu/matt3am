@@ -4,8 +4,7 @@ services:
     image: mongo:7
     container_name: matt3am-mongo
     restart: unless-stopped
-    ports:
-      - "${MONGO_PORT:-27017}:27017"
+    # No host port binding — only accessible via internal Docker network
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:-matt3am}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-matt3am_secret}

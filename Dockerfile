@@ -31,6 +31,13 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV DOCKER_BUILD=1
 ENV NODE_OPTIONS="--no-deprecation --max-old-space-size=8000"
 
+# Workaround: Next.js 16 Turbopack doesn't generate middleware.js for standalone output.
+# The actual middleware runs from edge chunks (referenced in middleware-manifest.json).
+# Pre-create stubs so the standalone file copier doesn't fail.
+RUN mkdir -p .next/server && \
+    echo '"use strict";module.exports={};' > .next/server/middleware.js && \
+    echo '{"version":1,"files":[]}' > .next/server/middleware.js.nft.json
+
 RUN pnpm build
 
 # ---- Runner (Production) ----

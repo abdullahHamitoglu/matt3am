@@ -6,8 +6,8 @@ services:
     restart: unless-stopped
     # No host port binding — only accessible via internal Docker network
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:-matt3am}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-matt3am_secret}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:?MONGO_USERNAME is required}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:?MONGO_PASSWORD is required}
       MONGO_INITDB_DATABASE: matt3am
     volumes:
       - mongo_data:/data/db
@@ -22,17 +22,15 @@ services:
 
   # ---- Next.js + Payload CMS App ----
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/abdullahhamitoglu/matt3am:latest
     container_name: matt3am-app
     restart: unless-stopped
     ports:
-      - "${APP_PORT:-3000}:3000"
+      - "${APP_PORT:-3001}:3000"
     environment:
       - NODE_ENV=production
-      - PAYLOAD_SECRET=${PAYLOAD_SECRET}
-      - DATABASE_URL=mongodb://${MONGO_USERNAME:-matt3am}:${MONGO_PASSWORD:-matt3am_secret}@mongo:27017/matt3am?authSource=admin
+      - PAYLOAD_SECRET=${PAYLOAD_SECRET:?PAYLOAD_SECRET is required}
+      - DATABASE_URL=mongodb://${MONGO_USERNAME:?MONGO_USERNAME is required}:${MONGO_PASSWORD:?MONGO_PASSWORD is required}@mongo:27017/matt3am?authSource=admin
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-/api}
     depends_on:
       mongo:
@@ -46,12 +44,14 @@ services:
     container_name: matt3am-mongo-express
     restart: unless-stopped
     ports:
-      - "${MONGO_EXPRESS_PORT:-8081}:8081"
+      - "127.0.0.1:${MONGO_EXPRESS_PORT:-8081}:8081"
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USERNAME:-matt3am}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASSWORD:-matt3am_secret}
-      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_USERNAME:-matt3am}:${MONGO_PASSWORD:-matt3am_secret}@mongo:27017/?authSource=admin
-      ME_CONFIG_BASICAUTH: "false"
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASSWORD}
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:27017/?authSource=admin
+      ME_CONFIG_BASICAUTH: "true"
+      ME_CONFIG_BASICAUTH_USERNAME: ${ME_USER:-admin}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${ME_PASS:-admin}
     depends_on:
       mongo:
         condition: service_healthy

@@ -1,68 +1,83 @@
-# ============================================
-# Matt3am - Multi-stage Docker Build
-# Next.js 16 + Payload CMS 3.x + MongoDB
-# ============================================
+# Use Node.js 20 slim as the base image for better compatibility with native binaries
+FROM node:20-slim AS base
 
-# ---- Base ----
-FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Build metadata
+ARG COMMIT_SHA="unknown"
+LABEL org.opencontainers.image.source="https://github.com/abdullahHamitoglu/matt3am-designer"
+LABEL org.opencontainers.image.revision="${COMMIT_SHA}"
+
+# Install dependencies only when needed
+FROM base AS deps
+RUN apt-get update && apt-get install -y libc6 python3 make g++ && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
-# ---- Dependencies ----
-FROM base AS deps
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copy package.json and pnpm-lock.yaml
 COPY package.json pnpm-lock.yaml ./
+
+# Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# ---- Builder ----
+# Rebuild the source code only when needed
 FROM base AS builder
+WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build args with safe defaults so build never fails from missing env vars
-# These are overridden at runtime by docker-compose environment vars
-ARG PAYLOAD_SECRET=build-time-placeholder-secret-will-be-replaced
-ARG DATABASE_URL=mongodb://localhost:27017/matt3am
-ARG NEXT_PUBLIC_API_URL=/api
+# Install pnpm for the build step
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-ENV PAYLOAD_SECRET=${PAYLOAD_SECRET}
-ENV DATABASE_URL=${DATABASE_URL}
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV DOCKER_BUILD=1
-ENV NODE_OPTIONS="--no-deprecation --max-old-space-size=8000"
+# Set environment variables for the build
+ARG PAYLOAD_SECRET
+ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
+ENV DOCKER true
+ENV SKIP_ENV_VALIDATION true
+# Set a dummy DATABASE_URI for build time (won't actually connect)
+ENV DATABASE_URI=mongodb://localhost:27017/dummy_build_db
+ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV production
 
-# Workaround: Next.js 16 Turbopack doesn't generate middleware.js for standalone output.
-# The actual middleware runs from edge chunks (referenced in middleware-manifest.json).
-# Pre-create stubs so the standalone file copier doesn't fail.
-RUN mkdir -p .next/server && \
-    echo '"use strict";module.exports={};' > .next/server/middleware.js && \
-    echo '{"version":1,"files":[]}' > .next/server/middleware.js.nft.json
+# Generate Payload types and build the app
+# Note: We use a dummy DATABASE_URI during build
+# The app will connect to the real DB at runtime instead
+RUN pnpm run build
 
-RUN pnpm build
-
-# ---- Runner (Production) ----
+# Production image, copy all the files and run next
 FROM base AS runner
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-
-RUN addgroup --system --gid 1001 nodejs \
-    && adduser --system --uid 1001 nextjs
-
 WORKDIR /app
 
-# Copy standalone output (output: 'standalone' in next.config.ts)
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/messages ./messages
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
 
-# Set correct permissions
-RUN chown -R nextjs:nodejs /app
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+
+# Set the correct permission for prerender cache
+RUN mkdir -p .next
+RUN chown nextjs:nodejs .next
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copy public files from builder (they were copied there in COPY . .)
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 USER nextjs
 
-EXPOSE 3000
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
+EXPOSE 3001
 
+ENV PORT 3001
+# set hostname to localhost
+ENV HOSTNAME "0.0.0.0"
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD node -e "fetch('http://localhost:3001/api/health').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))"
+
+# server.js is created by next build from the standalone output
+# https://nextjs.org/docs/pages/api-reference/next-config-js/output
 CMD ["node", "server.js"]
